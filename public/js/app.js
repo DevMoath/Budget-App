@@ -1,30 +1,23 @@
 class UI {
     constructor() {
-        this.budgetFeedback = document.querySelector(".budget-feedback");
-        this.expenseFeedback = document.querySelector(".expense-feedback");
-        this.budgetForm = document.getElementById("budget-form");
-        this.budgetInput = document.getElementById("budget-input");
-        this.budgetAmount = document.getElementById("budget-amount");
-        this.expenseAmount = document.getElementById("expense-amount");
-        this.balance = document.getElementById("balance");
-        this.balanceAmount = document.getElementById("balance-amount");
-        this.expenseForm = document.getElementById("expense-form");
-        this.expenseInput = document.getElementById("expense-input");
-        this.amountInput = document.getElementById("amount-input");
-        this.expenseList = document.getElementById("expense-list");
-        this.itemList = [];
-        this.itemID = 0;
+        this.budgetForm     = document.getElementById("budget-form");
+        this.budgetInput    = document.getElementById("budget-input");
+        this.budgetAmount   = document.getElementById("budget-amount");
+        this.expenseAmount  = document.getElementById("expense-amount");
+        this.balance        = document.getElementById("balance");
+        this.balanceAmount  = document.getElementById("balance-amount");
+        this.expenseForm    = document.getElementById("expense-form");
+        this.expenseInput   = document.getElementById("expense-input");
+        this.amountInput    = document.getElementById("amount-input");
+        this.expenseList    = document.getElementById("expense-list");
+        this.itemList       = [];
+        this.itemID         = 0;
     }
 
     submitBudgetForm() {
         const value = this.budgetInput.value;
         if (value === '' || value < 0) {
-            this.budgetFeedback.classList.add('showItem');
-            this.budgetFeedback.innerHTML = '<p>Value can\'t be empty or negative</p>'
-            const self = this
-            setTimeout(function () {
-                self.budgetFeedback.classList.remove('showItem');
-            }, 4000);
+            this.budgetInput.classList.add('is-invalid');
         } else {
             this.budgetAmount.textContent = value;
             this.budgetInput.value = '';
@@ -37,28 +30,31 @@ class UI {
         const total = parseInt(this.budgetAmount.textContent) - expense;
         this.balanceAmount.textContent = total;
         if (total < 0) {
-            this.balance.classList.remove('showGreen', 'showBlack');
-            this.balance.classList.add('showRed');
+            this.balance.classList.remove('text-success', 'text-dark');
+            this.balance.classList.add('text-danger');
         } else if (total > 0) {
-            this.balance.classList.remove('showBlack', 'showRed');
-            this.balance.classList.add('showGreen');
+            this.balance.classList.remove('text-dark', 'text-danger');
+            this.balance.classList.add('text-success');
         } else {
-            this.balance.classList.remove('showGreen', 'showRed');
-            this.balance.classList.add('showBlack');
+            this.balance.classList.remove('text-success', 'text-danger');
+            this.balance.classList.add('text-dark');
         }
     }
 
     submitExpenseForm() {
         const expenseValue = this.expenseInput.value;
         const amountValue = this.amountInput.value;
-        if (expenseValue === '' || amountValue === '' || amountValue < 0) {
-            this.expenseFeedback.classList.add('showItem');
-            this.expenseFeedback.innerHTML = '<p>Values can\'t be empty or negative</p>'
-            const self = this
-            setTimeout(function () {
-                self.expenseFeedback.classList.remove('showItem');
-            }, 4000);
-        } else {
+        let flag = true;
+
+        if (expenseValue === '') {
+            this.expenseInput.classList.add('is-invalid');
+        }
+
+        if (amountValue === '' || amountValue < 0) {
+            this.amountInput.classList.add('is-invalid');
+        }
+
+        if (flag) {
             let amount = parseInt(amountValue);
             this.expenseInput.value = '';
             this.amountInput.value = '';
@@ -77,21 +73,22 @@ class UI {
     }
 
     addExpense(expense) {
-        const div = document.createElement('div');
-        div.classList.add('expense');
-        div.innerHTML = `<div class="expense-item d-flex justify-content-between align-items-baseline">
-                             <h6 class="expense-title mb-0 text-uppercase list-item">- ${expense.title}</h6>
-                             <h5 class="expense-amount mb-0 list-item">${expense.amount}</h5>
+        const div = document.createElement('tr');
 
-                             <div class="expense-icons list-item">
-                                 <a href="#" class="edit-icon mx-2" data-id="${expense.id}">
-                                    <i class="fas fa-edit"></i>
-                                 </a>
-                                 <a href="#" class="delete-icon" data-id="${expense.id}">
-                                    <i class="fas fa-trash"></i>
-                                 </a>
-                             </div>
-                         </div>`;
+        div.innerHTML = `
+    <td>
+        ${expense.title}
+    </td>
+    <td>$ ${expense.amount}</td>
+    <td>
+        <a href="#" role="button" class="edit-icon btn btn-success" data-id="${expense.id}">
+            <i class="fas fa-pen"></i>
+        </a>
+        <a href="#" role="button" class="delete-icon btn btn-danger" data-id="${expense.id}">
+            <i class="far fa-trash-alt"></i>
+        </a>
+    </td>
+        `;
         this.expenseList.appendChild(div);
     }
 
@@ -103,79 +100,140 @@ class UI {
                 return accumulator;
             }, 0);
         }
-        this.expenseAmount.textContent = total;
+        this.expenseAmount.textContent = ''+total;
         return total
     }
 
     editExpense(element) {
         let id = parseInt(element.dataset.id);
-        let parent = element.parentElement.parentElement.parentElement;
+        let parent = element.parentElement.parentElement;
         // remove from the DOM
         this.expenseList.removeChild(parent);
 
         // remove from the list
         let expense = this.itemList.filter(function (item) {
             return item.id === id;
-        })
+        });
         // show value
         this.expenseInput.value = expense[0].title;
         this.amountInput.value = expense[0].amount;
 
-        let tempList = this.itemList.filter(function (item) {
+        this.expenseInput.focus();
+
+        this.itemList = this.itemList.filter(function (item) {
             return item.id !== id;
-        })
-        this.itemList = tempList;
+        });
+
         this.showBalance();
     }
 
     deleteExpense(element) {
         let id = parseInt(element.dataset.id);
-        let parent = element.parentElement.parentElement.parentElement;
+        let parent = element.parentElement.parentElement;
         // remove from the DOM
         this.expenseList.removeChild(parent);
 
         // remove from the list
-        let tempList = this.itemList.filter(function (item) {
+        this.itemList = this.itemList.filter(function (item) {
             return item.id !== id;
-        })
-        this.itemList = tempList;
+        });
+
         this.showBalance();
     }
 }
 
-function eventListenyers() {
+function eventListeners() {
     const expenseList = document.getElementById("expense-list");
     const ui = new UI();
 
     ui.budgetForm.addEventListener('submit', function (event) {
         event.preventDefault();
         ui.submitBudgetForm();
-    })
+    });
 
     ui.expenseForm.addEventListener('submit', function (event) {
         event.preventDefault();
         ui.submitExpenseForm();
-    })
+    });
 
     expenseList.addEventListener('click', function (event) {
         event.preventDefault();
-        if(event.target.parentElement.classList.contains('edit-icon')) {
+        if(event.target.classList.contains('edit-icon')) {
+            ui.editExpense(event.target);
+        } else if(event.target.classList.contains('delete-icon')) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.value) {
+                    ui.deleteExpense(event.target);
+                }
+            });
+        } else if(event.target.classList.contains('fa-trash-alt')) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.value) {
+                    ui.deleteExpense(event.target.parentElement);
+                }
+            });
+        } else if(event.target.classList.contains('fa-pen')) {
             ui.editExpense(event.target.parentElement);
-        } else if(event.target.parentElement.classList.contains('delete-icon')) {
-            ui.deleteExpense(event.target.parentElement);
         }
-    })
+    });
 
     return ui;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    let ui = eventListenyers();
+    let ui = eventListeners();
+
+    ui.budgetInput.addEventListener('input', () => {
+        ui.budgetInput.classList.remove('is-invalid');
+    });
+
+     ui.expenseInput.addEventListener('input', () => {
+         ui.expenseInput.classList.remove('is-invalid');
+     });
+
+     ui.amountInput.addEventListener('input', () => {
+         ui.amountInput.classList.remove('is-invalid');
+     });
+
+    window.addEventListener('scroll', () => {
+        let top = document.querySelector('#top');
+        if (window.scrollY < 150) {
+            top.classList.remove('show');
+        } else {
+            top.classList.add('show');
+        }
+    });
+
+    $('a[href^="#"]').on('click', function (event) {
+        let target = $(this.getAttribute('href'));
+        if(target.length) {
+            event.preventDefault();
+            $('html, body').stop().animate({
+                scrollTop: target.offset().top
+            }, 500);
+        }
+    });
 
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            document.getElementById('save-form').classList.remove('hide');
-            document.getElementById('login-form').classList.add('hide');
+            document.getElementById('user_logged').classList.remove('d-none');
+            document.getElementById('user_not_logged').classList.add('d-none');
 
             let db = firebase.firestore();
 
@@ -194,12 +252,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log("Error getting document:", error);
             });
         } else {
-
+            document.getElementById('user_logged').classList.add('d-none');
+            document.getElementById('user_not_logged').classList.remove('d-none');
         }
     });
 
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+
+    emailInput.addEventListener('input', () => {
+        emailInput.classList.remove('is-invalid');
+    });
+
+    passwordInput.addEventListener('input', () => {
+        passwordInput.classList.remove('is-invalid');
+    });
 
     const loginBtn = document.getElementById('login');
     const createAccountBtn = document.getElementById('createAccount');
@@ -226,24 +293,19 @@ document.addEventListener('DOMContentLoaded', function () {
         logout();
     });
 
-    document.getElementsByClassName("loader-container")[0].style.display = 'none';
-})
+    // document.getElementsByClassName("loader-container")[0].style.display = 'none';
+});
 
 function login(emailInput, passwordInput) {
 
     if (emailInput.value !== '' && passwordInput.value !== '') {
 
         if(passwordInput.value.length < 6) {
-            Swal.fire({
-                position: 'top-end',
-                type: 'error',
-                toast: true,
-                title: 'Password must be 6 characters or more',
-                showConfirmButton: false,
-                timer: 3000
-            });
+            passwordInput.classList.add('is-invalid');
             return
         }
+
+        document.getElementById('close').click();
 
         firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function (error) {
             Swal.fire({
@@ -252,13 +314,13 @@ function login(emailInput, passwordInput) {
                 toast: true,
                 title: error.message,
                 showConfirmButton: false,
-                timer: 3000
+                timer: 7000
             });
         });
 
     } else {
-        if (emailInput.value === '') emailInput.style.border = '2px solid #b80c09';
-        if (passwordInput.value === '') passwordInput.style.border = '2px solid #b80c09';
+        if (emailInput.value === '') emailInput.classList.add('is-invalid');
+        if (passwordInput.value === '') passwordInput.classList.add('is-invalid');
     }
 }
 
@@ -267,16 +329,11 @@ function createAccount(emailInput, passwordInput) {
     if (emailInput.value !== '' && passwordInput.value !== '') {
 
         if (passwordInput.value.length < 6) {
-            Swal.fire({
-                position: 'top-end',
-                type: 'error',
-                toast: true,
-                title: 'Password must be 6 characters or more',
-                showConfirmButton: false,
-                timer: 3000
-            });
+            passwordInput.classList.add('is-invalid');
             return
         }
+
+        document.getElementById('close').click();
 
         firebase.auth().createUserWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) {
             Swal.fire({
@@ -289,8 +346,8 @@ function createAccount(emailInput, passwordInput) {
             });
         });
     } else {
-        if (emailInput.value === '') emailInput.style.border = '2px solid #b80c09';
-        if (passwordInput.value === '') passwordInput.style.border = '2px solid #b80c09';
+        if (emailInput.value === '') emailInput.classList.add('is-invalid');
+        if (passwordInput.value === '') passwordInput.classList.add('is-invalid');
     }
 }
 
@@ -349,23 +406,28 @@ function logout() {
 function loadData(ui, data) {
 
     let budget = parseInt(data.budget);
-    let exexpense = data.itemList;
+    let expenses = data.itemList;
 
-    exexpense = exexpense.split('*');
-    let list = [];
+    ui.budgetAmount.textContent = parseInt(ui.budgetAmount.textContent) + budget;
 
-    for (let i = 0; i < exexpense.length; i++) {
-        list.push(JSON.parse(exexpense[i]));
+    if (expenses === '') {
+        console.log('No data');
+    } else {
+        expenses = expenses.split('*');
+        let list = [];
+
+        for (let i = 0; i < expenses.length; i++) {
+            list.push(JSON.parse(expenses[i]));
+        }
+
+        ui.itemID = list.length + 1;
+
+        for (let i = 0; i < list.length; i++) {
+            ui.addExpense(list[i]);
+        }
+
+        ui.itemList.push(...list);
     }
-
-    ui.budgetAmount.textContent = budget;
-    ui.itemID = list.length + 1;
-
-    for (let i = 0; i < list.length; i++) {
-        ui.addExpense(list[i]);
-    }
-
-    ui.itemList.push(...list);
 
     ui.showBalance();
 }
