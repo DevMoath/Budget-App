@@ -48,10 +48,12 @@ class UI {
 
         if (expenseValue === '') {
             this.expenseInput.classList.add('is-invalid');
+            flag = false;
         }
 
         if (amountValue === '' || amountValue < 0) {
             this.amountInput.classList.add('is-invalid');
+            flag = false;
         }
 
         if (flag) {
@@ -199,6 +201,13 @@ function eventListeners() {
 document.addEventListener('DOMContentLoaded', function () {
     let ui = eventListeners();
 
+    let toggler = document.getElementById("toggler");
+    let menu = document.getElementById("menu");
+    toggler.addEventListener('click', () => {
+        menu.classList.toggle("fa-ellipsis-v");
+        menu.classList.toggle("fa-times");
+    });
+
     ui.budgetInput.addEventListener('input', () => {
         ui.budgetInput.classList.remove('is-invalid');
     });
@@ -292,8 +301,6 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         logout();
     });
-
-    // document.getElementsByClassName("loader-container")[0].style.display = 'none';
 });
 
 function login(emailInput, passwordInput) {
@@ -428,6 +435,13 @@ function loadData(ui, data) {
 
         ui.itemList.push(...list);
     }
-
     ui.showBalance();
+    let loader = document.getElementsByClassName('loader');
+    for (let i = 0; i < loader.length; i++) {
+        loader[i].classList.add('d-none');
+        loader[i].classList.remove('d-flex');
+    }
+    document.getElementById('budget').classList.remove('d-none');
+    document.getElementById('expense').classList.remove('d-none');
+    document.getElementById('balance').classList.remove('d-none');
 }
