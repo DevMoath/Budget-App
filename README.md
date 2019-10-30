@@ -10,6 +10,7 @@ Manage your finance tasks
 * CSS3
 * [Bootstrap 4.3.1](https://getbootstrap.com/)
 * Vanilla JavaScript
+* [SweetAlert2](https://sweetalert2.github.io/)
 * [Firebase Cloud](https://firebase.google.com/)
 
 ## App Functions
