@@ -10,8 +10,50 @@ class UI {
         this.expenseInput   = document.getElementById("expense-input");
         this.amountInput    = document.getElementById("amount-input");
         this.expenseList    = document.getElementById("expense-list");
+        this.budget         = 0;
+        this.expenses       = 0;
         this.itemList       = [];
         this.itemID         = 0;
+    }
+
+    save() {
+        let string = '';
+
+        for (let i = 0; i < this.itemList.length; i++) {
+            if (i !== this.itemList.length - 1)
+                string += JSON.stringify(this.itemList[i]) + '*';
+            else
+                string += JSON.stringify(this.itemList[i]);
+        }
+
+        let userId = firebase.auth().currentUser.uid;
+
+        // Add a new document in collection "cities"
+        firebase.firestore().collection("users").doc(userId).set({
+            budget: this.budget,
+            itemList: string
+        })
+        .then(function () {
+            Swal.fire({
+                position: 'top-end',
+                type: 'success',
+                toast: true,
+                title: 'Your work has been saved',
+                showConfirmButton: false,
+                timer: 3000
+            })
+        })
+        .catch(function (error) {
+            console.error("Error writing document: ", error);
+            Swal.fire({
+                position: 'top-end',
+                type: 'error',
+                toast: true,
+                title: 'Your work has not been saved',
+                showConfirmButton: false,
+                timer: 3000
+            })
+        });
     }
 
     submitBudgetForm() {
@@ -22,6 +64,7 @@ class UI {
             this.budgetAmount.textContent = value;
             this.budgetInput.value = '';
             this.showBalance();
+            this.save();
         }
     }
 
@@ -71,6 +114,7 @@ class UI {
             this.itemList.push(expense);
             this.addExpense(expense);
             this.showBalance();
+            this.save();
         }
     }
 
@@ -103,7 +147,7 @@ class UI {
             }, 0);
         }
         this.expenseAmount.textContent = ''+total;
-        return total
+        return total;
     }
 
     editExpense(element) {
@@ -127,6 +171,7 @@ class UI {
         });
 
         this.showBalance();
+        this.save();
     }
 
     deleteExpense(element) {
@@ -141,6 +186,7 @@ class UI {
         });
 
         this.showBalance();
+        this.save();
     }
 }
 
@@ -212,13 +258,13 @@ document.addEventListener('DOMContentLoaded', function () {
         ui.budgetInput.classList.remove('is-invalid');
     });
 
-     ui.expenseInput.addEventListener('input', () => {
-         ui.expenseInput.classList.remove('is-invalid');
-     });
+    ui.expenseInput.addEventListener('input', () => {
+        ui.expenseInput.classList.remove('is-invalid');
+    });
 
-     ui.amountInput.addEventListener('input', () => {
-         ui.amountInput.classList.remove('is-invalid');
-     });
+    ui.amountInput.addEventListener('input', () => {
+        ui.amountInput.classList.remove('is-invalid');
+    });
 
     window.addEventListener('scroll', () => {
         let top = document.querySelector('#top');
@@ -279,7 +325,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const loginBtn = document.getElementById('login');
     const createAccountBtn = document.getElementById('createAccount');
-    const saveBtn = document.getElementById('save');
     const logoutBtn = document.getElementById('logout');
 
     loginBtn.addEventListener('click', event => {
@@ -290,11 +335,6 @@ document.addEventListener('DOMContentLoaded', function () {
     createAccountBtn.addEventListener('click', event => {
         event.preventDefault();
         createAccount(emailInput, passwordInput);
-    });
-
-    saveBtn.addEventListener('click', event => {
-        event.preventDefault();
-        save(ui.budgetAmount.textContent, ui.itemList);
     });
 
     logoutBtn.addEventListener('click', function (event) {
@@ -358,48 +398,6 @@ function createAccount(emailInput, passwordInput) {
     }
 }
 
-function save(budget, itemList) {
-
-    let string = '';
-
-    for (let i = 0; i < itemList.length; i++) {
-        if (i !== itemList.length-1)
-            string += JSON.stringify(itemList[i]) + '*';
-        else
-            string += JSON.stringify(itemList[i]);
-    }
-
-    let userId = firebase.auth().currentUser.uid;
-
-    // Add a new document in collection "cities"
-    firebase.firestore().collection("users").doc(userId).set({
-        budget: budget,
-        itemList: string
-    })
-        .then(function() {
-            console.log("Document successfully written!");
-            Swal.fire({
-                position: 'top-end',
-                type: 'success',
-                toast: true,
-                title: 'Your work has been saved',
-                showConfirmButton: false,
-                timer: 3000
-            })
-        })
-        .catch(function(error) {
-            console.error("Error writing document: ", error);
-            Swal.fire({
-                position: 'top-end',
-                type: 'error',
-                toast: true,
-                title: 'Your work has not been saved',
-                showConfirmButton: false,
-                timer: 3000
-            })
-        });
-}
-
 function logout() {
     firebase.auth().signOut().then(function() {
         // Sign-out successful.
@@ -414,6 +412,8 @@ function loadData(ui, data) {
 
     let budget = parseInt(data.budget);
     let expenses = data.itemList;
+
+    let a = new Intl.NumberFormat('arab', { style: 'currency', currency: 'USD' }).format(50000000000000);
 
     ui.budgetAmount.textContent = parseInt(ui.budgetAmount.textContent) + budget;
 
@@ -445,3 +445,7 @@ function loadData(ui, data) {
     document.getElementById('expense').classList.remove('d-none');
     document.getElementById('balance').classList.remove('d-none');
 }
+
+/* TODO Format Money using Intl.NumberFormat
+
+ */
