@@ -10,6 +10,12 @@ class UI {
         this.expenseInput   = document.getElementById("expense-input");
         this.amountInput    = document.getElementById("amount-input");
         this.expenseList    = document.getElementById("expense-list");
+        this.model_id       = document.getElementById('expense_id');
+        this.model_title    = document.getElementById('title');
+        this.model_value    = document.getElementById('value');
+        this.edit_button    = document.getElementById('edit');
+        this.delete_button  = document.getElementById('delete');
+        this.element        = null;
         this.budget         = 0;
         this.expenses       = 0;
         this.itemList       = [];
@@ -63,6 +69,7 @@ class UI {
         } else {
             this.budgetAmount.textContent = value;
             this.budgetInput.value = '';
+            this.budget = value;
             this.showBalance();
             this.save();
         }
@@ -150,33 +157,48 @@ class UI {
         return total;
     }
 
-    editExpense(element) {
+    showEditModel(element) {
         let id = parseInt(element.dataset.id);
-        let parent = element.parentElement.parentElement;
-        // remove from the DOM
-        this.expenseList.removeChild(parent);
 
-        // remove from the list
         let expense = this.itemList.filter(function (item) {
             return item.id === id;
         });
-        // show value
-        this.expenseInput.value = expense[0].title;
-        this.amountInput.value = expense[0].amount;
 
-        this.expenseInput.focus();
+        this.model_id.value = expense[0].id;
+        this.model_title.value = expense[0].title;
+        this.model_value.value = expense[0].amount;
 
-        this.itemList = this.itemList.filter(function (item) {
-            return item.id !== id;
-        });
+        this.element = element;
+
+        $('#edit_modal').modal('show');
+    }
+
+    editExpense() {
+        let parent = this.element.parentElement.parentElement;
+
+        // Edit values in DOM
+        parent.children[0].innerText = this.model_title.value;
+        parent.children[1].innerText = '$' + this.model_value.value;
+
+        // Edit values in list
+        let index = this.itemList.findIndex((item => item.id === parseInt(this.model_id.value)));
+        this.itemList[index].title = this.model_title.value;
+        this.itemList[index].amount = parseInt(this.model_value.value);
+        this.element = null;
 
         this.showBalance();
         this.save();
+        $('#edit_modal').modal('hide');
     }
 
     deleteExpense(element) {
+        if (element == null) {
+            element = this.element;
+        }
+
         let id = parseInt(element.dataset.id);
         let parent = element.parentElement.parentElement;
+
         // remove from the DOM
         this.expenseList.removeChild(parent);
 
@@ -187,12 +209,37 @@ class UI {
 
         this.showBalance();
         this.save();
+        $('#edit_modal').modal('hide');
     }
 }
 
 function eventListeners() {
     const expenseList = document.getElementById("expense-list");
     const ui = new UI();
+
+    $('#edit_modal').on('shown.bs.modal', () => {
+        $('#title').focus();
+    });
+
+    ui.delete_button.addEventListener('click', () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                ui.deleteExpense(null);
+            }
+        });
+    });
+
+    ui.edit_button.addEventListener('click', () => {
+        ui.editExpense();
+    });
 
     ui.budgetForm.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -207,7 +254,7 @@ function eventListeners() {
     expenseList.addEventListener('click', function (event) {
         event.preventDefault();
         if(event.target.classList.contains('edit-icon')) {
-            ui.editExpense(event.target);
+            ui.showEditModel(event.target);
         } else if(event.target.classList.contains('delete-icon')) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -237,7 +284,7 @@ function eventListeners() {
                 }
             });
         } else if(event.target.classList.contains('fa-pen')) {
-            ui.editExpense(event.target.parentElement);
+            ui.showEditModel(event.target.parentElement);
         }
     });
 
@@ -411,15 +458,14 @@ function logout() {
 function loadData(ui, data) {
 
     let budget = parseInt(data.budget);
+    console.log(budget);
     let expenses = data.itemList;
 
-    let a = new Intl.NumberFormat('arab', { style: 'currency', currency: 'USD' }).format(50000000000000);
+    // let a = new Intl.NumberFormat('arab', { style: 'currency', currency: 'USD' }).format(50000000000000);
 
-    ui.budgetAmount.textContent = parseInt(ui.budgetAmount.textContent) + budget;
+    ui.budgetAmount.innerText = parseInt(ui.budgetAmount.innerText) + budget;
 
-    if (expenses === '') {
-        console.log('No data');
-    } else {
+    if (expenses !== '') {
         expenses = expenses.split('*');
         let list = [];
 
@@ -435,12 +481,16 @@ function loadData(ui, data) {
 
         ui.itemList.push(...list);
     }
+
     ui.showBalance();
+
     let loader = document.getElementsByClassName('loader');
+
     for (let i = 0; i < loader.length; i++) {
         loader[i].classList.add('d-none');
         loader[i].classList.remove('d-flex');
     }
+
     document.getElementById('budget').classList.remove('d-none');
     document.getElementById('expense').classList.remove('d-none');
     document.getElementById('balance').classList.remove('d-none');
