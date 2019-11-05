@@ -17,7 +17,6 @@ class UI {
         this.delete_button  = document.getElementById('delete');
         this.element        = null;
         this.budget         = 0;
-        this.expenses       = 0;
         this.itemList       = [];
         this.itemID         = 0;
     }
@@ -34,7 +33,7 @@ class UI {
 
         let userId = firebase.auth().currentUser.uid;
 
-        // Add a new document in collection "cities"
+        // Add a new document in collection "users"
         firebase.firestore().collection("users").doc(userId).set({
             budget: this.budget,
             itemList: string
@@ -67,7 +66,7 @@ class UI {
         if (value === '' || value < 0) {
             this.budgetInput.classList.add('is-invalid');
         } else {
-            this.budgetAmount.textContent = value;
+            this.budgetAmount.innerText = this.formatNumber(value);
             this.budgetInput.value = '';
             this.budget = value;
             this.showBalance();
@@ -75,10 +74,14 @@ class UI {
         }
     }
 
+    formatNumber(number) {
+        return new Intl.NumberFormat().format(number);
+    }
+
     showBalance() {
         const expense = this.totalExpense();
-        const total = parseInt(this.budgetAmount.textContent) - expense;
-        this.balanceAmount.textContent = total;
+        const total   = this.budget - expense;
+        this.balanceAmount.textContent = this.formatNumber(total);
         if (total < 0) {
             this.balance.classList.remove('text-success', 'text-dark');
             this.balance.classList.add('text-danger');
@@ -127,12 +130,13 @@ class UI {
 
     addExpense(expense) {
         const div = document.createElement('tr');
+        let amount = this.formatNumber(expense.amount);
 
         div.innerHTML = `
     <td>
         ${expense.title}
     </td>
-    <td>$ ${expense.amount}</td>
+    <td>$${amount}</td>
     <td>
         <a href="#" role="button" class="edit-icon btn btn-success" data-id="${expense.id}">
             <i class="fas fa-pen"></i>
@@ -152,8 +156,8 @@ class UI {
                 accumulator += current.amount;
                 return accumulator;
             }, 0);
+            this.expenseAmount.innerText = this.formatNumber(total);
         }
-        this.expenseAmount.textContent = ''+total;
         return total;
     }
 
@@ -178,7 +182,7 @@ class UI {
 
         // Edit values in DOM
         parent.children[0].innerText = this.model_title.value;
-        parent.children[1].innerText = '$' + this.model_value.value;
+        parent.children[1].innerText = '$' + this.formatNumber(this.model_value.value);
 
         // Edit values in list
         let index = this.itemList.findIndex((item => item.id === parseInt(this.model_id.value)));
@@ -457,13 +461,10 @@ function logout() {
 
 function loadData(ui, data) {
 
-    let budget = parseInt(data.budget);
-    console.log(budget);
+    ui.budget += parseInt(data.budget);
     let expenses = data.itemList;
 
-    // let a = new Intl.NumberFormat('arab', { style: 'currency', currency: 'USD' }).format(50000000000000);
-
-    ui.budgetAmount.innerText = parseInt(ui.budgetAmount.innerText) + budget;
+    ui.budgetAmount.innerText = ui.formatNumber(ui.budget);
 
     if (expenses !== '') {
         expenses = expenses.split('*');
@@ -495,7 +496,3 @@ function loadData(ui, data) {
     document.getElementById('expense').classList.remove('d-none');
     document.getElementById('balance').classList.remove('d-none');
 }
-
-/* TODO Format Money using Intl.NumberFormat
-
- */
