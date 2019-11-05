@@ -10,31 +10,13 @@ Manage your finance tasks
 * CSS3
 * [Bootstrap 4.3.1](https://getbootstrap.com/)
 * Vanilla JavaScript
+* jQuery
 * [SweetAlert2](https://sweetalert2.github.io/)
 * [Firebase Cloud](https://firebase.google.com/)
 
 ## App Functions
 * Add budget
-<p align="center">
-  <img src="public/img/1-add-budget.gif" width="600"/>
-</p>
-
-* Add expense title and expense value
-<p align="center">
-  <img src="public/img/2-add-expense.gif" width="600"/>
-</p>
-
+* Add expense title and value
 * Edit expense information
-<p align="center">
-  <img src="public/img/4-edit-expense.gif" width="600"/>
-</p>
-
 * Delete expense
-<p align="center">
-  <img src="public/img/3-delete-expense.gif" width="600"/>
-</p>
-
 * Save your data (Account Required)
-<p align="center">
-  <img src="public/img/5-login.gif" width="600"/>
-</p>
