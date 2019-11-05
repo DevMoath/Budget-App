@@ -1,0 +1,39 @@
+* {
+    font-family: "Comic Sans MS", serif;
+}
+.font-18 {
+    font-size: 18px !important;
+}
+.border {
+    border: 2px solid !important;
+}
+span i {
+    font-size: 2.5rem;
+}
+footer i {
+    font-size: 1.6rem;
+}
+.tableFixHead {
+    overflow-y: auto;
+    max-height: 350px;
+}
+.tableFixHead thead th {
+    position: sticky;
+    top: 0;
+}
+/* width */
+::-webkit-scrollbar {
+    width: 7px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #666;
+}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}

@@ -13,6 +13,8 @@
     <link rel="icon" href="img/logo.png">
     <!-- bootstrap css -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Custom css -->
+    <link rel="stylesheet" href="css/index.css">
     <!-- jquery -->
     <script src="js/jquery-3.3.1.min.js"></script>
     <!-- bootstrap js -->
@@ -21,25 +23,6 @@
     <link rel="stylesheet" href="css/all.min.css">
     <!-- sweetalert library -->
     <script src="js/sweetalert2@8.js"></script>
-    <style>
-        .font-18 {
-            font-size: 18px !important;
-        }
-        .border {
-            border: 2px solid !important;
-        }
-        span i {
-            font-size: 2.5rem;
-        }
-        .tableFixHead {
-            overflow-y: auto;
-            max-height: 500px;
-        }
-        .tableFixHead thead th {
-            position: sticky;
-            top: 0;
-        }
-    </style>
 </head>
 <body>
 
@@ -177,7 +160,7 @@
                 <div class="col-lg-6 mx-auto my-auto">
                     <!-- app info -->
                     <div class="row my-3">
-                        <div class="col-sm-4 text-center">
+                        <div class="col-sm-4 text-center mb-4">
                             <h5 class="text-uppercase info-title mb-3">budget</h5>
                             <span class="budget-icon">
                                 <i class="fas fa-money-bill-alt text-primary"></i>
@@ -191,7 +174,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 text-center">
+                        <div class="col-sm-4 text-center mb-4">
                             <h5 class="text-uppercase info-title mb-3">expenses</h5>
                             <span class="expense-icon">
                                 <i class="far fa-credit-card text-primary"></i>
@@ -205,7 +188,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 text-center">
+                        <div class="col-sm-4 text-center mb-4">
                             <h5 class="text-uppercase info-title mb-3">balance</h5>
                             <span class="balance-icon">
                                 <i class="fas fa-dollar-sign text-primary"></i>
@@ -289,9 +272,17 @@
 
 <!-- Footer -->
 <footer class="mb-4">
-    <h4 class="py-3 bg-dark rounded-pill text-light text-center mx-auto" style="width: 300px">
-        Developed by <a href="https://twitter.com/Dev_Moath" class="btn-link">Moath</a>
-    </h4>
+    <div class="text-center ml-4" style="width: 350px">
+        <a href="https://twitter.com/Dev_Moath" class="btn rounded text-light bg-primary">
+            <i class="fab fa-twitter fa-fw"></i>
+        </a>
+        <a href="https://github.com/DevMoath" class="btn rounded text-light bg-dark">
+            <i class="fab fa-github fa-fw"></i>
+        </a>
+        <a href="https://github.com/DevMoath/Budget-App" class="btn rounded text-light bg-secondary">
+            <i class="fas fa-code-branch fa-fw"></i>Fork me on GitHub
+        </a>
+    </div>
 </footer>
 
 <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
