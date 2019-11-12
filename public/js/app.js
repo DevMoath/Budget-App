@@ -212,6 +212,7 @@ class UI {
         this.model_value.value = expense[0].amount;
 
         this.element = element;
+        element.parentElement.parentElement.classList.add('table-success');
 
         $('#edit_modal').modal('show');
     }
@@ -220,14 +221,13 @@ class UI {
         let parent = this.element.parentElement.parentElement;
 
         // Edit values in DOM
-        parent.children[0].innerText = this.model_title.value;
-        parent.children[1].innerText = '$' + this.formatNumber(this.model_value.value);
+        parent.children[1].innerText = this.model_title.value;
+        parent.children[2].innerText = '$' + this.formatNumber(this.model_value.value);
 
         // Edit values in list
         let index = this.itemList.findIndex((item => item.id === parseInt(this.model_id.value)));
         this.itemList[index].title = this.model_title.value;
         this.itemList[index].amount = parseInt(this.model_value.value);
-        this.element = null;
 
         this.showBalance();
         this.save();
@@ -262,6 +262,11 @@ function eventListeners() {
 
     $('#edit_modal').on('shown.bs.modal', () => {
         $('#title').focus();
+    });
+
+    $('#edit_modal').on('hidden.bs.modal', (e) => {
+        ui.element.parentElement.parentElement.classList.remove('table-success');
+        ui.element = null;
     });
 
     ui.delete_button.addEventListener('click', () => {
