@@ -7,6 +7,9 @@
 .border {
     border: 2px solid !important;
 }
+.checked {
+    text-decoration: line-through;
+}
 span i {
     font-size: 2.5rem;
 }

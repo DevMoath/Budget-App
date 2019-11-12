@@ -117,7 +117,8 @@ class UI {
             let expense = {
                 id: this.itemID,
                 title: expenseValue,
-                amount: amount
+                amount: amount,
+                isCompleted: false
             };
 
             this.itemID++;
@@ -132,21 +133,59 @@ class UI {
         const div = document.createElement('tr');
         let amount = this.formatNumber(expense.amount);
 
+        let icon = 'fa-circle';
+        let checked = '';
+        if (expense.isCompleted) {
+            icon = 'fa-check-circle text-success';
+            checked = 'checked';
+        }
+
         div.innerHTML = `
-    <td>
-        ${expense.title}
-    </td>
-    <td>$${amount}</td>
-    <td>
-        <a href="#" role="button" class="edit-icon btn btn-success" data-id="${expense.id}">
-            <i class="fas fa-pen"></i>
-        </a>
-        <a href="#" role="button" class="delete-icon btn btn-danger" data-id="${expense.id}">
-            <i class="far fa-trash-alt"></i>
-        </a>
-    </td>
+            <td class="align-middle">
+                <button class="btn btn-lg complete-icon" data-id="${expense.id}">
+                    <i class="far ${icon}"></i>
+                </button>
+            </td>
+            <td class="align-middle ${checked}">
+                ${expense.title}
+            </td>
+            <td class="align-middle ${checked}">
+                $${amount}
+            </td>
+            <td class="align-middle">
+                <a href="#" role="button" class="edit-icon btn btn-success" data-id="${expense.id}">
+                    <i class="fas fa-pen"></i>
+                </a>
+                <a href="#" role="button" class="delete-icon btn btn-danger" data-id="${expense.id}">
+                    <i class="far fa-trash-alt"></i>
+                </a>
+            </td>
         `;
         this.expenseList.appendChild(div);
+    }
+
+    completeExpense(element) {
+        let id = parseInt(element.dataset.id);
+        let parent = element.parentElement.parentElement.children;
+        let index = this.itemList.findIndex((item => item.id === id));
+
+        // Edit values in list
+        let checked = this.itemList[index].isCompleted = !this.itemList[index].isCompleted;
+
+        // Edit icon in DOM
+        if (checked) {
+            parent[1].classList.add('checked');
+            parent[2].classList.add('checked');
+            element.children[0].classList.remove('fa-circle');
+            element.children[0].classList.add('fa-check-circle', 'text-success');
+        } else {
+            parent[1].classList.remove('checked');
+            parent[2].classList.remove('checked');
+            element.children[0].classList.remove('fa-check-circle', 'text-success');
+            element.children[0].classList.add('fa-circle');
+        }
+
+        this.save();
     }
 
     totalExpense() {
@@ -289,6 +328,11 @@ function eventListeners() {
             });
         } else if(event.target.classList.contains('fa-pen')) {
             ui.showEditModel(event.target.parentElement);
+        } else if(event.target.classList.contains('complete-icon')) {
+            ui.completeExpense(event.target);
+        } else if(event.target.classList.contains('fa-check-circle') ||
+                  event.target.classList.contains('fa-circle')) {
+            ui.completeExpense(event.target.parentElement);
         }
     });
 
