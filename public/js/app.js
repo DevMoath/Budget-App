@@ -15,10 +15,12 @@ class UI {
         this.model_value    = document.getElementById('value');
         this.edit_button    = document.getElementById('edit');
         this.delete_button  = document.getElementById('delete');
+        this.select_option = document.getElementById('currency');
         this.element        = null;
         this.budget         = 0;
         this.itemList       = [];
         this.itemID         = 0;
+        this.currency       = '$';
     }
 
     save() {
@@ -36,7 +38,8 @@ class UI {
         // Add a new document in collection "users"
         firebase.firestore().collection("users").doc(userId).set({
             budget: this.budget,
-            itemList: string
+            itemList: string,
+            currency: this.currency
         })
         .then(function () {
             Swal.fire({
@@ -150,7 +153,7 @@ class UI {
                 ${expense.title}
             </td>
             <td class="align-middle ${checked}">
-                $${amount}
+                ${this.currency}${amount}
             </td>
             <td class="align-middle">
                 <a href="#" role="button" class="edit-icon btn btn-success" data-id="${expense.id}">
@@ -222,7 +225,7 @@ class UI {
 
         // Edit values in DOM
         parent.children[1].innerText = this.model_title.value;
-        parent.children[2].innerText = '$' + this.formatNumber(this.model_value.value);
+        parent.children[2].innerText = this.currency + this.formatNumber(this.model_value.value);
 
         // Edit values in list
         let index = this.itemList.findIndex((item => item.id === parseInt(this.model_id.value)));
@@ -267,6 +270,18 @@ function eventListeners() {
     $('#edit_modal').on('hidden.bs.modal', (e) => {
         ui.element.parentElement.parentElement.classList.remove('table-success');
         ui.element = null;
+    });
+
+    ui.select_option.addEventListener('change', (e) => {
+
+        let children = ui.expenseList.children;
+        for (let i = 0; i < children.length; i++) {
+            let child = children[i].children[2];
+            let child_text = child.innerText;
+            child.innerText = child_text.replace(ui.currency, e.target.value);
+        }
+        ui.currency = e.target.value;
+        ui.save();
     });
 
     ui.delete_button.addEventListener('click', () => {
@@ -511,7 +526,17 @@ function logout() {
 function loadData(ui, data) {
 
     ui.budget += parseInt(data.budget);
+    ui.currency = data.currency;
     let expenses = data.itemList;
+
+    let options = ui.select_option.options;
+    for (let i = 0; i < options.length; i++) {
+        if (ui.currency === options[i].value) {
+            ui.select_option.selectedIndex = i;
+        }
+    }
+
+    ui.select_option.classList.remove('d-none');
 
     ui.budgetAmount.innerText = ui.formatNumber(ui.budget);
 
