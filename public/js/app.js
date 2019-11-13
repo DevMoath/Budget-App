@@ -273,7 +273,6 @@ function eventListeners() {
     });
 
     ui.select_option.addEventListener('change', (e) => {
-
         let children = ui.expenseList.children;
         for (let i = 0; i < children.length; i++) {
             let child = children[i].children[2];
@@ -281,6 +280,9 @@ function eventListeners() {
             child.innerText = child_text.replace(ui.currency, e.target.value);
         }
         ui.currency = e.target.value;
+        document.getElementById('budget-currency').innerText = ui.currency;
+        document.getElementById('expense-currency').innerText = ui.currency;
+        document.getElementById('balance-currency').innerText = ui.currency;
         ui.save();
     });
 
@@ -567,6 +569,9 @@ function loadData(ui, data) {
     }
 
     document.getElementById('budget').classList.remove('d-none');
+    document.getElementById('budget-currency').innerText = ui.currency;
     document.getElementById('expense').classList.remove('d-none');
+    document.getElementById('expense-currency').innerText = ui.currency;
     document.getElementById('balance').classList.remove('d-none');
+    document.getElementById('balance-currency').innerText = ui.currency;
 }
