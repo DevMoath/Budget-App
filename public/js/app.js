@@ -95,6 +95,7 @@ class UI {
             this.balance.classList.remove('text-success', 'text-danger');
             this.balance.classList.add('text-dark');
         }
+        document.getElementById('total').innerText = ''+this.itemList.length;
     }
 
     submitExpenseForm() {
