@@ -136,18 +136,17 @@ class UI {
         const div = document.createElement('tr');
         let amount = this.formatNumber(expense.amount);
 
-        let icon = 'fa-circle';
         let checked = '';
         if (expense.isCompleted) {
-            icon = 'fa-check-circle text-success';
             checked = 'checked';
         }
 
         div.innerHTML = `
             <td class="align-middle">
-                <button class="btn btn-lg complete-icon" data-id="${expense.id}">
-                    <i class="far ${icon}"></i>
-                </button>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="check${expense.id}"                                     data-id="${expense.id}" ${checked}>
+                    <label class="custom-control-label complete-icon" for="check${expense.id}"></label>
+                </div>
             </td>
             <td class="align-middle ${checked}">
                 ${expense.title}
@@ -169,23 +168,19 @@ class UI {
 
     completeExpense(element) {
         let id = parseInt(element.dataset.id);
-        let parent = element.parentElement.parentElement.children;
+
+        let parent = element.parentElement.parentElement.parentElement.children;
         let index = this.itemList.findIndex((item => item.id === id));
 
         // Edit values in list
-        let checked = this.itemList[index].isCompleted = !this.itemList[index].isCompleted;
+        element.checked = this.itemList[index].isCompleted = !this.itemList[index].isCompleted;
 
-        // Edit icon in DOM
-        if (checked) {
+        if (element.checked) {
             parent[1].classList.add('checked');
             parent[2].classList.add('checked');
-            element.children[0].classList.remove('fa-circle');
-            element.children[0].classList.add('fa-check-circle', 'text-success');
         } else {
             parent[1].classList.remove('checked');
             parent[2].classList.remove('checked');
-            element.children[0].classList.remove('fa-check-circle', 'text-success');
-            element.children[0].classList.add('fa-circle');
         }
 
         this.save();
@@ -351,10 +346,7 @@ function eventListeners() {
         } else if(event.target.classList.contains('fa-pen')) {
             ui.showEditModel(event.target.parentElement);
         } else if(event.target.classList.contains('complete-icon')) {
-            ui.completeExpense(event.target);
-        } else if(event.target.classList.contains('fa-check-circle') ||
-                  event.target.classList.contains('fa-circle')) {
-            ui.completeExpense(event.target.parentElement);
+            ui.completeExpense(event.target.parentElement.children[0]);
         }
     });
 
