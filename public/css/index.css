@@ -10,6 +10,9 @@
 .checked {
     text-decoration: line-through;
 }
+.custom-control-label {
+    vertical-align: top;
+}
 span i {
     font-size: 2.5rem;
 }
