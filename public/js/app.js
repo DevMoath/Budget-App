@@ -28,10 +28,13 @@ class UI {
         this.element        = null;
         this.budget         = 0;
         this.itemList       = [];
-        this.itemID         = 0;
         this.currency       = '$';
         this.success_message = 'Your work has been saved';
         this.failed_message = 'Your work has not been saved';
+    }
+
+    generateID() {
+        return Math.random().toString(36).substr(2, 9);
     }
 
     message(type) {
@@ -92,7 +95,8 @@ class UI {
     showBalance() {
         let expense = this.totalExpense();
         let total   = this.budget - expense;
-        this.balanceAmount.textContent = this.formatNumber(total);
+        this.balanceAmount.innerText = this.formatNumber(total);
+
         if (total < 0) {
             this.balance.classList.remove('text-success', 'text-dark');
             this.balance.classList.add('text-danger');
@@ -127,13 +131,12 @@ class UI {
             this.amountInput.value = '';
 
             let expense = {
-                id: this.itemID,
+                id: this.generateID(),
                 title: expenseValue,
                 amount: parseInt(amountValue),
                 isCompleted: false
             };
 
-            this.itemID++;
             this.itemList.push(expense);
             this.addExpense(expense);
             this.showBalance();
@@ -177,7 +180,8 @@ class UI {
     }
 
     completeExpense(element) {
-        let id = parseInt(element.dataset.id);
+        let id = element.dataset.id;
+        console.log(id);
 
         let parent = element.parentElement.parentElement.parentElement;
         let children = element.parentElement.parentElement.parentElement.children;
@@ -206,13 +210,13 @@ class UI {
                 accumulator += current.amount;
                 return accumulator;
             }, 0);
-            this.expenseAmount.innerText = this.formatNumber(total);
         }
+        this.expenseAmount.innerText = this.formatNumber(total);
         return total;
     }
 
     showEditModel(element) {
-        let id = parseInt(element.dataset.id);
+        let id = element.dataset.id;
 
         let expense = this.itemList.filter(function (item) {
             return item.id === id;
@@ -236,7 +240,7 @@ class UI {
         parent.children[2].innerText = this.currency + this.formatNumber(this.model_value.value);
 
         // Edit values in list
-        let index = this.itemList.findIndex((item => item.id === parseInt(this.model_id.value)));
+        let index = this.itemList.findIndex((item => item.id === this.model_id.value));
         this.itemList[index].title = this.model_title.value;
         this.itemList[index].amount = parseInt(this.model_value.value);
 
@@ -250,7 +254,7 @@ class UI {
             element = this.element;
         }
 
-        let id = parseInt(element.dataset.id);
+        let id = element.dataset.id;
         let parent = element.parentElement.parentElement;
 
         // remove from the DOM
