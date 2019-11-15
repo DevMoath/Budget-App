@@ -1,36 +1,37 @@
 class UI {
     constructor() {
-        this.expenseList = document.getElementById("expense-list");
-        this.budgetForm     = document.getElementById("budget-form");
-        this.budgetInput    = document.getElementById("budget-input");
-        this.budgetAmount   = document.getElementById("budget-amount");
-        this.expenseAmount  = document.getElementById("expense-amount");
-        this.balance        = document.getElementById("balance");
-        this.balanceAmount  = document.getElementById("balance-amount");
-        this.expenseForm    = document.getElementById("expense-form");
-        this.expenseInput   = document.getElementById("expense-input");
-        this.amountInput    = document.getElementById("amount-input");
-        this.expenseList    = document.getElementById("expense-list");
-        this.model_id       = document.getElementById('expense_id');
-        this.model_title    = document.getElementById('title');
-        this.model_value    = document.getElementById('value');
-        this.edit_button    = document.getElementById('edit');
-        this.delete_button  = document.getElementById('delete');
-        this.select_option = document.getElementById('currency');
-        this.total_expenses = document.getElementById('total');
-        this.budget_currency = document.getElementById('budget-currency');
+        this.expenseList      = document.getElementById("expense-list");
+        this.budgetForm       = document.getElementById("budget-form");
+        this.budgetInput      = document.getElementById("budget-input");
+        this.budgetAmount     = document.getElementById("budget-amount");
+        this.expenseAmount    = document.getElementById("expense-amount");
+        this.balance          = document.getElementById("balance");
+        this.balanceAmount    = document.getElementById("balance-amount");
+        this.expenseForm      = document.getElementById("expense-form");
+        this.expenseInput     = document.getElementById("expense-input");
+        this.amountInput      = document.getElementById("amount-input");
+        this.expenseList      = document.getElementById("expense-list");
+        this.model_id         = document.getElementById('expense_id');
+        this.model_title      = document.getElementById('title');
+        this.model_value      = document.getElementById('value');
+        this.edit_button      = document.getElementById('edit');
+        this.delete_button    = document.getElementById('delete');
+        this.select_option    = document.getElementById('currency');
+        this.total_expenses   = document.getElementById('total');
+        this.budget_currency  = document.getElementById('budget-currency');
         this.expense_currency = document.getElementById('expense-currency');
         this.balance_currency = document.getElementById('balance-currency');
-        this.toggler = document.getElementById("toggler");
-        this.menu = document.getElementById("menu");
-        this.user_logged = document.getElementById('user_logged');
-        this.user_not_logged = document.getElementById('user_not_logged');
-        this.element        = null;
-        this.budget         = 0;
-        this.itemList       = [];
-        this.currency       = '$';
-        this.success_message = 'Your work has been saved';
-        this.failed_message = 'Your work has not been saved';
+        this.toggler          = document.getElementById("toggler");
+        this.menu             = document.getElementById("menu");
+        this.user_logged      = document.getElementById('user_logged');
+        this.user_not_logged  = document.getElementById('user_not_logged');
+        this.delete_all       = document.getElementById('delete_all');
+        this.element          = null;
+        this.budget           = 0;
+        this.itemList         = [];
+        this.currency         = '$';
+        this.success_message  = 'Your work has been saved';
+        this.failed_message   = 'Your work has not been saved';
     }
 
     generateID() {
@@ -59,20 +60,20 @@ class UI {
         }
 
         let userId = firebase.auth().currentUser.uid;
-        let self = this;
+        let self   = this;
         // Add a new document in collection "users"
         firebase.firestore().collection("users").doc(userId).set({
             budget: this.budget,
             itemList: string,
             currency: this.currency
         })
-        .then(function () {
-            self.message(true);
-        })
-        .catch(function (error) {
-            console.error("Error writing document: ", error);
-            self.message(false);
-        });
+            .then(function () {
+                self.message(true);
+            })
+            .catch(function (error) {
+                console.error("Error writing document: ", error);
+                self.message(false);
+            });
     }
 
     submitBudgetForm() {
@@ -81,8 +82,8 @@ class UI {
             this.budgetInput.classList.add('is-invalid');
         } else {
             this.budgetAmount.innerText = this.formatNumber(value);
-            this.budgetInput.value = '';
-            this.budget = value;
+            this.budgetInput.value      = '';
+            this.budget                 = value;
             this.showBalance();
             this.save();
         }
@@ -93,8 +94,8 @@ class UI {
     }
 
     showBalance() {
-        let expense = this.totalExpense();
-        let total   = this.budget - expense;
+        let expense                  = this.totalExpense();
+        let total                    = this.budget - expense;
         this.balanceAmount.innerText = this.formatNumber(total);
 
         if (total < 0) {
@@ -108,13 +109,18 @@ class UI {
             this.balance.classList.add('text-dark');
         }
 
-        this.total_expenses.innerText = ''+this.itemList.length;
+        this.total_expenses.innerText = '' + this.itemList.length;
+        if (this.itemList.length === 0) {
+            this.delete_all.classList.add('d-none');
+        } else {
+            this.delete_all.classList.remove('d-none');
+        }
     }
 
     submitExpenseForm() {
         let expenseValue = this.expenseInput.value;
-        let amountValue = this.amountInput.value;
-        let flag = true;
+        let amountValue  = this.amountInput.value;
+        let flag         = true;
 
         if (expenseValue === '') {
             this.expenseInput.classList.add('is-invalid');
@@ -128,7 +134,7 @@ class UI {
 
         if (flag) {
             this.expenseInput.value = '';
-            this.amountInput.value = '';
+            this.amountInput.value  = '';
 
             let expense = {
                 id: this.generateID(),
@@ -145,7 +151,7 @@ class UI {
     }
 
     addExpense(expense) {
-        let div = document.createElement('tr');
+        let div    = document.createElement('tr');
         let amount = this.formatNumber(expense.amount);
 
         let checked = '';
@@ -183,9 +189,9 @@ class UI {
         let id = element.dataset.id;
         console.log(id);
 
-        let parent = element.parentElement.parentElement.parentElement;
+        let parent   = element.parentElement.parentElement.parentElement;
         let children = element.parentElement.parentElement.parentElement.children;
-        let index = this.itemList.findIndex((item => item.id === id));
+        let index    = this.itemList.findIndex((item => item.id === id));
 
         // Edit values in list and DOM
         element.checked = this.itemList[index].isCompleted = !this.itemList[index].isCompleted;
@@ -205,7 +211,7 @@ class UI {
 
     totalExpense() {
         let total = 0;
-        if(this.itemList.length > 0) {
+        if (this.itemList.length > 0) {
             total = this.itemList.reduce(function (accumulator, current) {
                 accumulator += current.amount;
                 return accumulator;
@@ -222,7 +228,7 @@ class UI {
             return item.id === id;
         });
 
-        this.model_id.value = expense[0].id;
+        this.model_id.value    = expense[0].id;
         this.model_title.value = expense[0].title;
         this.model_value.value = expense[0].amount;
 
@@ -240,8 +246,8 @@ class UI {
         parent.children[2].innerText = this.currency + this.formatNumber(this.model_value.value);
 
         // Edit values in list
-        let index = this.itemList.findIndex((item => item.id === this.model_id.value));
-        this.itemList[index].title = this.model_title.value;
+        let index                   = this.itemList.findIndex((item => item.id === this.model_id.value));
+        this.itemList[index].title  = this.model_title.value;
         this.itemList[index].amount = parseInt(this.model_value.value);
 
         this.showBalance();
@@ -254,7 +260,7 @@ class UI {
             element = this.element;
         }
 
-        let id = element.dataset.id;
+        let id     = element.dataset.id;
         let parent = element.parentElement.parentElement;
 
         // remove from the DOM
@@ -274,7 +280,7 @@ class UI {
         let children = this.expenseList.children;
 
         for (let i = 0; i < children.length; i++) {
-            let child = children[i].children[2];
+            let child       = children[i].children[2];
             child.innerText = child.innerText.replace(this.currency, currency);
         }
 
@@ -286,7 +292,7 @@ class UI {
     }
 
     auth() {
-        firebase.auth().onAuthStateChanged( (user) => {
+        firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 this.user_logged.classList.remove('d-none');
                 this.user_not_logged.classList.add('d-none');
@@ -299,14 +305,14 @@ class UI {
 
                 let self = this;
 
-                docRef.get().then( (doc) => {
+                docRef.get().then((doc) => {
                     if (doc.exists) {
                         loadData(self, doc.data());
                     } else {
                         // doc.data() will be undefined in this case
                         console.log("No such document!");
                     }
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log("Error getting document:", error);
                 });
             } else {
@@ -314,6 +320,13 @@ class UI {
                 this.user_not_logged.classList.remove('d-none');
             }
         });
+    }
+
+    deleteAllExpense() {
+        this.itemList = [];
+        this.expenseList.innerHTML = '';
+        this.showBalance();
+        this.save();
     }
 }
 
@@ -334,6 +347,22 @@ function eventListeners() {
     ui.toggler.addEventListener('click', () => {
         ui.menu.classList.toggle("fa-ellipsis-v");
         ui.menu.classList.toggle("fa-times");
+    });
+
+    ui.delete_all.addEventListener('click', () => {
+        Swal.fire({
+            title: 'Are you sure you want to delete all your expenses ?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                ui.deleteAllExpense();
+            }
+        });
     });
 
     ui.select_option.addEventListener('change', (e) => {
@@ -372,9 +401,9 @@ function eventListeners() {
 
     ui.expenseList.addEventListener('click', function (event) {
         event.preventDefault();
-        if(event.target.classList.contains('edit-icon')) {
+        if (event.target.classList.contains('edit-icon')) {
             ui.showEditModel(event.target);
-        } else if(event.target.classList.contains('delete-icon')) {
+        } else if (event.target.classList.contains('delete-icon')) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -388,7 +417,7 @@ function eventListeners() {
                     ui.deleteExpense(event.target);
                 }
             });
-        } else if(event.target.classList.contains('fa-trash-alt')) {
+        } else if (event.target.classList.contains('fa-trash-alt')) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -402,9 +431,9 @@ function eventListeners() {
                     ui.deleteExpense(event.target.parentElement);
                 }
             });
-        } else if(event.target.classList.contains('fa-pen')) {
+        } else if (event.target.classList.contains('fa-pen')) {
             ui.showEditModel(event.target.parentElement);
-        } else if(event.target.classList.contains('complete-icon')) {
+        } else if (event.target.classList.contains('complete-icon')) {
             ui.completeExpense(event.target.parentElement.children[0]);
         }
     });
@@ -432,7 +461,7 @@ function eventListeners() {
 
     $('a[href^="#"]').on('click', function (event) {
         let target = $(this.getAttribute('href'));
-        if(target.length) {
+        if (target.length) {
             event.preventDefault();
             $('html, body').stop().animate({
                 scrollTop: target.offset().top
@@ -446,7 +475,7 @@ function eventListeners() {
 document.addEventListener('DOMContentLoaded', () => {
     eventListeners();
 
-    let emailInput = document.getElementById('email');
+    let emailInput    = document.getElementById('email');
     let passwordInput = document.getElementById('password');
 
     emailInput.addEventListener('input', () => {
@@ -457,9 +486,9 @@ document.addEventListener('DOMContentLoaded', () => {
         passwordInput.classList.remove('is-invalid');
     });
 
-    let loginBtn = document.getElementById('login');
+    let loginBtn         = document.getElementById('login');
     let createAccountBtn = document.getElementById('createAccount');
-    let logoutBtn = document.getElementById('logout');
+    let logoutBtn        = document.getElementById('logout');
 
     loginBtn.addEventListener('click', event => {
         event.preventDefault();
@@ -481,14 +510,14 @@ function login(emailInput, passwordInput) {
 
     if (emailInput.value !== '' && passwordInput.value !== '') {
 
-        if(passwordInput.value.length < 6) {
+        if (passwordInput.value.length < 6) {
             passwordInput.classList.add('is-invalid');
             return
         }
 
         document.getElementById('close').click();
 
-        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch( (error) => {
+        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch((error) => {
             Swal.fire({
                 position: 'top-end',
                 type: 'error',
@@ -516,7 +545,7 @@ function createAccount(emailInput, passwordInput) {
 
         document.getElementById('close').click();
 
-        firebase.auth().createUserWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) {
+        firebase.auth().createUserWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function (error) {
             Swal.fire({
                 position: 'top-end',
                 type: 'error',
@@ -533,10 +562,10 @@ function createAccount(emailInput, passwordInput) {
 }
 
 function logout() {
-    firebase.auth().signOut().then(function() {
+    firebase.auth().signOut().then(function () {
         // Sign-out successful.
         location.reload();
-    }).catch(function(error) {
+    }).catch(function (error) {
         // An error happened.
         swal("Failed!", error.code, "error");
     });
@@ -544,7 +573,7 @@ function logout() {
 
 function loadData(ui, data) {
     ui.budget += parseInt(data.budget);
-    ui.currency = data.currency;
+    ui.currency  = data.currency;
     let expenses = data.itemList;
 
     let options = ui.select_option.options;

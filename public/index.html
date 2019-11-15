@@ -252,7 +252,7 @@
                     <!-- expense list -->
                     <div>
 
-                        <div class="table-responsive tableFixHead">
+                        <div class="table-responsive tableFixHead mb-3">
                             <table class="table table-hover text-center">
                                 <thead>
                                 <tr class="text-light">
@@ -278,10 +278,16 @@
                                 </tbody>
                             </table>
                         </div>
-                        <caption>
-                            Total of expenses :
-                            <span class="badge badge-pill badge-primary" id="total"></span>
-                        </caption>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                Total of expenses :
+                                <span class="badge badge-pill badge-primary" id="total">0</span>
+                            </div>
+                            <button class="btn btn-danger d-none" id="delete_all">
+                                Delete All
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
