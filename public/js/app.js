@@ -40,7 +40,7 @@ class UI {
 
     message(type) {
         Swal.fire({
-            position: 'top-end',
+            position: 'bottom-start',
             type: type ? 'success' : 'error',
             toast: true,
             title: type ? this.success_message : this.failed_message,
@@ -318,8 +318,25 @@ class UI {
             } else {
                 this.user_logged.classList.add('d-none');
                 this.user_not_logged.classList.remove('d-none');
+                this.removeLoader();
             }
         });
+    }
+
+    removeLoader() {
+        let loader = document.getElementsByClassName('loader');
+
+        for (let i = 0; i < loader.length; i++) {
+            loader[i].classList.add('d-none');
+            loader[i].classList.remove('d-flex');
+        }
+
+        document.getElementById('budget').classList.remove('d-none');
+        document.getElementById('budget-currency').innerText = this.currency;
+        document.getElementById('expense').classList.remove('d-none');
+        document.getElementById('expense-currency').innerText = this.currency;
+        document.getElementById('balance').classList.remove('d-none');
+        document.getElementById('balance-currency').innerText = this.currency;
     }
 
     deleteAllExpense() {
@@ -606,17 +623,5 @@ function loadData(ui, data) {
 
     ui.showBalance();
 
-    let loader = document.getElementsByClassName('loader');
-
-    for (let i = 0; i < loader.length; i++) {
-        loader[i].classList.add('d-none');
-        loader[i].classList.remove('d-flex');
-    }
-
-    document.getElementById('budget').classList.remove('d-none');
-    document.getElementById('budget-currency').innerText = ui.currency;
-    document.getElementById('expense').classList.remove('d-none');
-    document.getElementById('expense-currency').innerText = ui.currency;
-    document.getElementById('balance').classList.remove('d-none');
-    document.getElementById('balance-currency').innerText = ui.currency;
+    ui.removeLoader();
 }
