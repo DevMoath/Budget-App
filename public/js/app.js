@@ -1,5 +1,6 @@
 class UI {
     constructor() {
+        this.expenseList = document.getElementById("expense-list");
         this.budgetForm     = document.getElementById("budget-form");
         this.budgetInput    = document.getElementById("budget-input");
         this.budgetAmount   = document.getElementById("budget-amount");
@@ -16,11 +17,32 @@ class UI {
         this.edit_button    = document.getElementById('edit');
         this.delete_button  = document.getElementById('delete');
         this.select_option = document.getElementById('currency');
+        this.total_expenses = document.getElementById('total');
+        this.budget_currency = document.getElementById('budget-currency');
+        this.expense_currency = document.getElementById('expense-currency');
+        this.balance_currency = document.getElementById('balance-currency');
+        this.toggler = document.getElementById("toggler");
+        this.menu = document.getElementById("menu");
+        this.user_logged = document.getElementById('user_logged');
+        this.user_not_logged = document.getElementById('user_not_logged');
         this.element        = null;
         this.budget         = 0;
         this.itemList       = [];
         this.itemID         = 0;
         this.currency       = '$';
+        this.success_message = 'Your work has been saved';
+        this.failed_message = 'Your work has not been saved';
+    }
+
+    message(type) {
+        Swal.fire({
+            position: 'top-end',
+            type: type ? 'success' : 'error',
+            toast: true,
+            title: type ? this.success_message : this.failed_message,
+            showConfirmButton: false,
+            timer: 3000
+        })
     }
 
     save() {
@@ -34,7 +56,7 @@ class UI {
         }
 
         let userId = firebase.auth().currentUser.uid;
-
+        let self = this;
         // Add a new document in collection "users"
         firebase.firestore().collection("users").doc(userId).set({
             budget: this.budget,
@@ -42,30 +64,16 @@ class UI {
             currency: this.currency
         })
         .then(function () {
-            Swal.fire({
-                position: 'top-end',
-                type: 'success',
-                toast: true,
-                title: 'Your work has been saved',
-                showConfirmButton: false,
-                timer: 3000
-            })
+            self.message(true);
         })
         .catch(function (error) {
             console.error("Error writing document: ", error);
-            Swal.fire({
-                position: 'top-end',
-                type: 'error',
-                toast: true,
-                title: 'Your work has not been saved',
-                showConfirmButton: false,
-                timer: 3000
-            })
+            self.message(false);
         });
     }
 
     submitBudgetForm() {
-        const value = this.budgetInput.value;
+        let value = this.budgetInput.value;
         if (value === '' || value < 0) {
             this.budgetInput.classList.add('is-invalid');
         } else {
@@ -82,8 +90,8 @@ class UI {
     }
 
     showBalance() {
-        const expense = this.totalExpense();
-        const total   = this.budget - expense;
+        let expense = this.totalExpense();
+        let total   = this.budget - expense;
         this.balanceAmount.textContent = this.formatNumber(total);
         if (total < 0) {
             this.balance.classList.remove('text-success', 'text-dark');
@@ -95,12 +103,13 @@ class UI {
             this.balance.classList.remove('text-success', 'text-danger');
             this.balance.classList.add('text-dark');
         }
-        document.getElementById('total').innerText = ''+this.itemList.length;
+
+        this.total_expenses.innerText = ''+this.itemList.length;
     }
 
     submitExpenseForm() {
-        const expenseValue = this.expenseInput.value;
-        const amountValue = this.amountInput.value;
+        let expenseValue = this.expenseInput.value;
+        let amountValue = this.amountInput.value;
         let flag = true;
 
         if (expenseValue === '') {
@@ -114,14 +123,13 @@ class UI {
         }
 
         if (flag) {
-            let amount = parseInt(amountValue);
             this.expenseInput.value = '';
             this.amountInput.value = '';
 
             let expense = {
                 id: this.itemID,
                 title: expenseValue,
-                amount: amount,
+                amount: parseInt(amountValue),
                 isCompleted: false
             };
 
@@ -134,18 +142,19 @@ class UI {
     }
 
     addExpense(expense) {
-        const div = document.createElement('tr');
+        let div = document.createElement('tr');
         let amount = this.formatNumber(expense.amount);
 
         let checked = '';
         if (expense.isCompleted) {
             checked = 'checked';
+            div.classList.add('table-primary');
         }
 
         div.innerHTML = `
-            <td class="align-middle" style="z-index: 0!important;">
+            <td class="align-middle">
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="check${expense.id}"                                     data-id="${expense.id}" ${checked}>
+                    <input type="checkbox" class="custom-control-input" id="check${expense.id}" data-id="${expense.id}" ${checked}>
                     <label class="custom-control-label complete-icon" for="check${expense.id}"></label>
                 </div>
             </td>
@@ -170,18 +179,21 @@ class UI {
     completeExpense(element) {
         let id = parseInt(element.dataset.id);
 
-        let parent = element.parentElement.parentElement.parentElement.children;
+        let parent = element.parentElement.parentElement.parentElement;
+        let children = element.parentElement.parentElement.parentElement.children;
         let index = this.itemList.findIndex((item => item.id === id));
 
-        // Edit values in list
+        // Edit values in list and DOM
         element.checked = this.itemList[index].isCompleted = !this.itemList[index].isCompleted;
 
         if (element.checked) {
-            parent[1].classList.add('checked');
-            parent[2].classList.add('checked');
+            parent.classList.add('table-primary');
+            children[1].classList.add('checked');
+            children[2].classList.add('checked');
         } else {
-            parent[1].classList.remove('checked');
-            parent[2].classList.remove('checked');
+            parent.classList.remove('table-primary');
+            children[1].classList.remove('checked');
+            children[2].classList.remove('checked');
         }
 
         this.save();
@@ -253,33 +265,75 @@ class UI {
         this.save();
         $('#edit_modal').modal('hide');
     }
+
+    changeCurrency(currency) {
+        let children = this.expenseList.children;
+
+        for (let i = 0; i < children.length; i++) {
+            let child = children[i].children[2];
+            child.innerText = child.innerText.replace(this.currency, currency);
+        }
+
+        this.currency =
+            this.budget_currency.innerText =
+                this.expense_currency.innerText =
+                    this.balance_currency.innerText = currency;
+        this.save();
+    }
+
+    auth() {
+        firebase.auth().onAuthStateChanged( (user) => {
+            if (user) {
+                this.user_logged.classList.remove('d-none');
+                this.user_not_logged.classList.add('d-none');
+
+                let db = firebase.firestore();
+
+                let userId = firebase.auth().currentUser.uid;
+
+                let docRef = db.collection("users").doc(userId);
+
+                let self = this;
+
+                docRef.get().then( (doc) => {
+                    if (doc.exists) {
+                        loadData(self, doc.data());
+                    } else {
+                        // doc.data() will be undefined in this case
+                        console.log("No such document!");
+                    }
+                }).catch(function(error) {
+                    console.log("Error getting document:", error);
+                });
+            } else {
+                this.user_logged.classList.add('d-none');
+                this.user_not_logged.classList.remove('d-none');
+            }
+        });
+    }
 }
 
 function eventListeners() {
-    const expenseList = document.getElementById("expense-list");
-    const ui = new UI();
+    let ui = new UI();
+
+    ui.auth();
 
     $('#edit_modal').on('shown.bs.modal', () => {
         $('#title').focus();
     });
 
-    $('#edit_modal').on('hidden.bs.modal', (e) => {
+    $('#edit_modal').on('hidden.bs.modal', () => {
         ui.element.parentElement.parentElement.classList.remove('table-success');
         ui.element = null;
     });
 
+    ui.toggler.addEventListener('click', () => {
+        ui.menu.classList.toggle("fa-ellipsis-v");
+        ui.menu.classList.toggle("fa-times");
+    });
+
     ui.select_option.addEventListener('change', (e) => {
-        let children = ui.expenseList.children;
-        for (let i = 0; i < children.length; i++) {
-            let child = children[i].children[2];
-            let child_text = child.innerText;
-            child.innerText = child_text.replace(ui.currency, e.target.value);
-        }
-        ui.currency = e.target.value;
-        document.getElementById('budget-currency').innerText = ui.currency;
-        document.getElementById('expense-currency').innerText = ui.currency;
-        document.getElementById('balance-currency').innerText = ui.currency;
-        ui.save();
+        ui.changeCurrency(e.target.value);
     });
 
     ui.delete_button.addEventListener('click', () => {
@@ -312,7 +366,7 @@ function eventListeners() {
         ui.submitExpenseForm();
     });
 
-    expenseList.addEventListener('click', function (event) {
+    ui.expenseList.addEventListener('click', function (event) {
         event.preventDefault();
         if(event.target.classList.contains('edit-icon')) {
             ui.showEditModel(event.target);
@@ -351,19 +405,6 @@ function eventListeners() {
         }
     });
 
-    return ui;
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    let ui = eventListeners();
-
-    let toggler = document.getElementById("toggler");
-    let menu = document.getElementById("menu");
-    toggler.addEventListener('click', () => {
-        menu.classList.toggle("fa-ellipsis-v");
-        menu.classList.toggle("fa-times");
-    });
-
     ui.budgetInput.addEventListener('input', () => {
         ui.budgetInput.classList.remove('is-invalid');
     });
@@ -395,35 +436,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            document.getElementById('user_logged').classList.remove('d-none');
-            document.getElementById('user_not_logged').classList.add('d-none');
+    return ui;
+}
 
-            let db = firebase.firestore();
+document.addEventListener('DOMContentLoaded', () => {
+    eventListeners();
 
-            let userId = firebase.auth().currentUser.uid;
-
-            let docRef = db.collection("users").doc(userId);
-
-            docRef.get().then(function(doc) {
-                if (doc.exists) {
-                    loadData(ui, doc.data());
-                } else {
-                    // doc.data() will be undefined in this case
-                    console.log("No such document!");
-                }
-            }).catch(function(error) {
-                console.log("Error getting document:", error);
-            });
-        } else {
-            document.getElementById('user_logged').classList.add('d-none');
-            document.getElementById('user_not_logged').classList.remove('d-none');
-        }
-    });
-
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
+    let emailInput = document.getElementById('email');
+    let passwordInput = document.getElementById('password');
 
     emailInput.addEventListener('input', () => {
         emailInput.classList.remove('is-invalid');
@@ -433,9 +453,9 @@ document.addEventListener('DOMContentLoaded', function () {
         passwordInput.classList.remove('is-invalid');
     });
 
-    const loginBtn = document.getElementById('login');
-    const createAccountBtn = document.getElementById('createAccount');
-    const logoutBtn = document.getElementById('logout');
+    let loginBtn = document.getElementById('login');
+    let createAccountBtn = document.getElementById('createAccount');
+    let logoutBtn = document.getElementById('logout');
 
     loginBtn.addEventListener('click', event => {
         event.preventDefault();
@@ -447,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
         createAccount(emailInput, passwordInput);
     });
 
-    logoutBtn.addEventListener('click', function (event) {
+    logoutBtn.addEventListener('click', event => {
         event.preventDefault();
         logout();
     });
@@ -464,7 +484,7 @@ function login(emailInput, passwordInput) {
 
         document.getElementById('close').click();
 
-        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function (error) {
+        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch( (error) => {
             Swal.fire({
                 position: 'top-end',
                 type: 'error',
@@ -519,7 +539,6 @@ function logout() {
 }
 
 function loadData(ui, data) {
-
     ui.budget += parseInt(data.budget);
     ui.currency = data.currency;
     let expenses = data.itemList;

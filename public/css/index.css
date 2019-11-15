@@ -24,6 +24,7 @@ footer i {
     max-height: 350px;
 }
 .tableFixHead thead th {
+    z-index: 100;
     position: sticky;
     top: 0;
 }
