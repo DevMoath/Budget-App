@@ -143,7 +143,7 @@ class UI {
         }
 
         div.innerHTML = `
-            <td class="align-middle">
+            <td class="align-middle" style="z-index: 0!important;">
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="check${expense.id}"                                     data-id="${expense.id}" ${checked}>
                     <label class="custom-control-label complete-icon" for="check${expense.id}"></label>
