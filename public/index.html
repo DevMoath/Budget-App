@@ -93,7 +93,7 @@
 <div class="container-fluid">
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <span class="navbar-brand mr-3" href="#">
+        <span class="navbar-brand mr-3">
             <img src="img/logo.png" width="30" height="30" alt="Logo">
             budget app
         </span>
@@ -257,7 +257,7 @@
                             <table class="table table-hover text-center">
                                 <thead>
                                 <tr class="text-light">
-                                    <th class="bg-dark align-middle" scope="col" style="width: 5%">#</th>
+                                    <th class="bg-dark align-middle" scope="col" style="width: 5%"></th>
                                     <th class="bg-dark align-middle" scope="col" style="width: 40%">Title</th>
                                     <th class="bg-dark align-middle" scope="col" style="width: 25%">Value</th>
                                     <th class="bg-dark align-middle" scope="col" style="width: 30%">Actions</th>
@@ -286,7 +286,10 @@
                                 <span class="badge badge-pill badge-primary" id="total">0</span>
                             </div>
                             <button class="btn btn-danger d-none" id="delete_all">
-                                Delete All
+                                <i class="far fa-trash-alt"></i> Delete All
+                            </button>
+                            <button class="btn btn-warning d-none" id="complete_all" data-status="">
+
                             </button>
                         </div>
                     </div>

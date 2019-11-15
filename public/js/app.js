@@ -26,6 +26,7 @@ class UI {
         this.user_logged      = document.getElementById('user_logged');
         this.user_not_logged  = document.getElementById('user_not_logged');
         this.delete_all       = document.getElementById('delete_all');
+        this.complete_all       = document.getElementById('complete_all');
         this.element          = null;
         this.budget           = 0;
         this.itemList         = [];
@@ -40,7 +41,7 @@ class UI {
 
     message(type) {
         Swal.fire({
-            position: 'bottom-start',
+            position: 'top-start',
             type: type ? 'success' : 'error',
             toast: true,
             title: type ? this.success_message : this.failed_message,
@@ -112,8 +113,26 @@ class UI {
         this.total_expenses.innerText = '' + this.itemList.length;
         if (this.itemList.length === 0) {
             this.delete_all.classList.add('d-none');
+            this.complete_all.classList.add('d-none');
         } else {
             this.delete_all.classList.remove('d-none');
+            this.complete_all.classList.remove('d-none');
+
+            let new_list = this.itemList.filter(item => {
+                return item.isCompleted;
+            });
+
+            if (new_list.length === this.itemList.length) {
+                this.complete_all.innerHTML = '<i class="fas fa-times"></i> Incomplete All';
+                this.complete_all.dataset.status = 'false';
+                this.complete_all.classList.remove('btn-success');
+                this.complete_all.classList.add('btn-warning');
+            } else {
+                this.complete_all.innerHTML = '<i class="fas fa-check-double"></i> Complete All';
+                this.complete_all.dataset.status = 'true';
+                this.complete_all.classList.add('btn-success');
+                this.complete_all.classList.remove('btn-warning');
+            }
         }
     }
 
@@ -187,7 +206,6 @@ class UI {
 
     completeExpense(element) {
         let id = element.dataset.id;
-        console.log(id);
 
         let parent   = element.parentElement.parentElement.parentElement;
         let children = element.parentElement.parentElement.parentElement.children;
@@ -206,6 +224,7 @@ class UI {
             children[2].classList.remove('checked');
         }
 
+        this.showBalance();
         this.save();
     }
 
@@ -345,6 +364,19 @@ class UI {
         this.showBalance();
         this.save();
     }
+
+    completeAllExpense(status) {
+        this.expenseList.innerHTML = '';
+        let check = status === 'true';
+
+        for (let i = 0; i < this.itemList.length; i++) {
+            this.itemList[i].isCompleted = check;
+            this.addExpense(this.itemList[i]);
+        }
+
+        this.showBalance();
+        this.save();
+    }
 }
 
 function eventListeners() {
@@ -380,6 +412,10 @@ function eventListeners() {
                 ui.deleteAllExpense();
             }
         });
+    });
+
+    ui.complete_all.addEventListener('click', (e) => {
+        ui.completeAllExpense(e.target.dataset.status);
     });
 
     ui.select_option.addEventListener('change', (e) => {
@@ -622,6 +658,5 @@ function loadData(ui, data) {
     }
 
     ui.showBalance();
-
     ui.removeLoader();
 }
