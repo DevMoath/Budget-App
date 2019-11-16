@@ -93,21 +93,16 @@
 <div class="container-fluid">
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <span class="navbar-brand mr-3">
+        <span class="navbar-brand">
             <img src="img/logo.png" width="30" height="30" alt="Logo">
             budget app
         </span>
 
-        <div class="ml-auto mr-3">
-            <div class="input-group input-group-sm">
-                <div class="input-group-prepend">
-                    <label class="input-group-text" for="currency">Currency</label>
-                </div>
-                <select class="custom-select" id="currency">
-                    <option value="$">$</option>
-                    <option value="SR">SR</option>
-                </select>
-            </div>
+        <div class="ml-auto">
+            <select class="custom-select custom-select-sm" id="currency">
+                <option value="$">$</option>
+                <option value="SR">SR</option>
+            </select>
         </div>
 
         <button class="navbar-toggler border-0" id="toggler" type="button" data-toggle="collapse" data-target="#navbar"
@@ -280,17 +275,21 @@
                             </table>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <div>
+                        <div class="row">
+                            <div class="col-sm-4 text-center my-2">
                                 Total of expenses :
                                 <span class="badge badge-pill badge-primary" id="total">0</span>
                             </div>
-                            <button class="btn btn-danger d-none" id="delete_all">
-                                <i class="far fa-trash-alt"></i> Delete All
-                            </button>
-                            <button class="btn btn-warning d-none" id="complete_all" data-status="">
+                            <div class="col-sm-4 text-center my-2">
+                                <button class="btn btn-danger d-none" id="delete_all">
+                                    <i class="far fa-trash-alt"></i> Delete All
+                                </button>
+                            </div>
+                            <div class="col-sm-4 text-center my-2">
+                                <button class="btn btn-warning d-none" id="complete_all" data-status="">
 
-                            </button>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -302,8 +301,8 @@
 </div>
 
 <!-- Footer -->
-<footer class="mb-4">
-    <div class="text-center ml-4" style="width: 350px">
+<footer class="ml-5 mb-4">
+    <div class="">
         <a href="https://twitter.com/Dev_Moath" class="btn rounded text-light bg-primary">
             <i class="fab fa-twitter fa-fw"></i>
         </a>
@@ -311,7 +310,7 @@
             <i class="fab fa-github fa-fw"></i>
         </a>
         <a href="https://github.com/DevMoath/Budget-App" class="btn rounded text-light bg-secondary">
-            <i class="fas fa-code-branch fa-fw"></i>Fork me on GitHub
+            <i class="fas fa-code-branch fa-fw"></i>
         </a>
     </div>
 </footer>
