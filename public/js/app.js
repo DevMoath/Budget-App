@@ -26,7 +26,7 @@ class UI {
         this.user_logged      = document.getElementById('user_logged');
         this.user_not_logged  = document.getElementById('user_not_logged');
         this.delete_all       = document.getElementById('delete_all');
-        this.complete_all       = document.getElementById('complete_all');
+        this.complete_all     = document.getElementById('complete_all');
         this.element          = null;
         this.budget           = 0;
         this.itemList         = [];
@@ -41,13 +41,13 @@ class UI {
 
     message(type) {
         Swal.fire({
-            position: 'top-start',
-            type: type ? 'success' : 'error',
-            toast: true,
-            title: type ? this.success_message : this.failed_message,
-            showConfirmButton: false,
-            timer: 3000
-        })
+                      position:'top-start',
+                      type:type ? 'success' : 'error',
+                      toast:true,
+                      title:type ? this.success_message : this.failed_message,
+                      showConfirmButton:false,
+                      timer:3000
+                  })
     }
 
     save() {
@@ -64,10 +64,10 @@ class UI {
         let self   = this;
         // Add a new document in collection "users"
         firebase.firestore().collection("users").doc(userId).set({
-            budget: this.budget,
-            itemList: string,
-            currency: this.currency
-        })
+                                                                     budget:this.budget,
+                                                                     itemList:string,
+                                                                     currency:this.currency
+                                                                 })
             .then(function () {
                 self.message(true);
             })
@@ -123,12 +123,12 @@ class UI {
             });
 
             if (new_list.length === this.itemList.length) {
-                this.complete_all.innerHTML = '<i class="fas fa-times"></i> Incomplete All';
+                this.complete_all.innerHTML      = '<i class="fas fa-times"></i> Incomplete All';
                 this.complete_all.dataset.status = 'false';
                 this.complete_all.classList.remove('btn-success');
                 this.complete_all.classList.add('btn-warning');
             } else {
-                this.complete_all.innerHTML = '<i class="fas fa-check-double"></i> Complete All';
+                this.complete_all.innerHTML      = '<i class="fas fa-check-double"></i> Complete All';
                 this.complete_all.dataset.status = 'true';
                 this.complete_all.classList.add('btn-success');
                 this.complete_all.classList.remove('btn-warning');
@@ -156,10 +156,10 @@ class UI {
             this.amountInput.value  = '';
 
             let expense = {
-                id: this.generateID(),
-                title: expenseValue,
-                amount: parseInt(amountValue),
-                isCompleted: false
+                id:this.generateID(),
+                title:expenseValue,
+                amount:parseInt(amountValue),
+                isCompleted:false
             };
 
             this.itemList.push(expense);
@@ -338,6 +338,10 @@ class UI {
                 this.user_logged.classList.add('d-none');
                 this.user_not_logged.classList.remove('d-none');
                 this.removeLoader();
+                $('#login_modal').modal({
+                                            backdrop:'static',
+                                            keyboard:false
+                                        });
             }
         });
     }
@@ -359,7 +363,7 @@ class UI {
     }
 
     deleteAllExpense() {
-        this.itemList = [];
+        this.itemList              = [];
         this.expenseList.innerHTML = '';
         this.showBalance();
         this.save();
@@ -367,7 +371,7 @@ class UI {
 
     completeAllExpense(status) {
         this.expenseList.innerHTML = '';
-        let check = status === 'true';
+        let check                  = status === 'true';
 
         for (let i = 0; i < this.itemList.length; i++) {
             this.itemList[i].isCompleted = check;
@@ -400,14 +404,14 @@ function eventListeners() {
 
     ui.delete_all.addEventListener('click', () => {
         Swal.fire({
-            title: 'Are you sure you want to delete all your expenses ?',
-            text: "You won't be able to revert this!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
+                      title:'Are you sure you want to delete all your expenses ?',
+                      text:"You won't be able to revert this!",
+                      type:'warning',
+                      showCancelButton:true,
+                      confirmButtonColor:'#d33',
+                      cancelButtonColor:'#3085d6',
+                      confirmButtonText:'Yes, delete it!'
+                  }).then((result) => {
             if (result.value) {
                 ui.deleteAllExpense();
             }
@@ -424,14 +428,14 @@ function eventListeners() {
 
     ui.delete_button.addEventListener('click', () => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
+                      title:'Are you sure?',
+                      text:"You won't be able to revert this!",
+                      type:'warning',
+                      showCancelButton:true,
+                      confirmButtonColor:'#d33',
+                      cancelButtonColor:'#3085d6',
+                      confirmButtonText:'Yes, delete it!'
+                  }).then((result) => {
             if (result.value) {
                 ui.deleteExpense(null);
             }
@@ -458,28 +462,28 @@ function eventListeners() {
             ui.showEditModel(event.target);
         } else if (event.target.classList.contains('delete-icon')) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
+                          title:'Are you sure?',
+                          text:"You won't be able to revert this!",
+                          type:'warning',
+                          showCancelButton:true,
+                          confirmButtonColor:'#d33',
+                          cancelButtonColor:'#3085d6',
+                          confirmButtonText:'Yes, delete it!'
+                      }).then((result) => {
                 if (result.value) {
                     ui.deleteExpense(event.target);
                 }
             });
         } else if (event.target.classList.contains('fa-trash-alt')) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
+                          title:'Are you sure?',
+                          text:"You won't be able to revert this!",
+                          type:'warning',
+                          showCancelButton:true,
+                          confirmButtonColor:'#d33',
+                          cancelButtonColor:'#3085d6',
+                          confirmButtonText:'Yes, delete it!'
+                      }).then((result) => {
                 if (result.value) {
                     ui.deleteExpense(event.target.parentElement);
                 }
@@ -517,13 +521,18 @@ function eventListeners() {
         if (target.length) {
             event.preventDefault();
             $('html, body').stop().animate({
-                scrollTop: target.offset().top
-            }, 500);
+                                               scrollTop:target.offset().top
+                                           }, 500);
         }
     });
 
     return ui;
 }
+
+// Disable zoom feature in mobile browsers
+document.addEventListener('gesturestart', e => {
+    e.preventDefault();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     eventListeners();
@@ -568,18 +577,21 @@ function login(emailInput, passwordInput) {
             return
         }
 
-        document.getElementById('close').click();
-
-        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch((error) => {
-            Swal.fire({
-                position: 'top-end',
-                type: 'error',
-                toast: true,
-                title: error.message,
-                showConfirmButton: false,
-                timer: 7000
+        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value)
+            .then(() => {
+                $('#login_modal').modal('hide');
+                $('#app').removeClass('d-none');
+            })
+            .catch((error) => {
+                Swal.fire({
+                              position:'top-end',
+                              type:'error',
+                              toast:true,
+                              title:error.message,
+                              showConfirmButton:false,
+                              timer:7000
+                          });
             });
-        });
 
     } else {
         if (emailInput.value === '') emailInput.classList.add('is-invalid');
@@ -596,18 +608,21 @@ function createAccount(emailInput, passwordInput) {
             return
         }
 
-        document.getElementById('close').click();
-
-        firebase.auth().createUserWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function (error) {
-            Swal.fire({
-                position: 'top-end',
-                type: 'error',
-                toast: true,
-                title: error.message,
-                showConfirmButton: false,
-                timer: 3000
+        firebase.auth().createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
+            .then(() => {
+                $('#login_modal').modal('hide');
+                $('#app').removeClass('d-none');
+            })
+            .catch(error => {
+                Swal.fire({
+                              position:'top-end',
+                              type:'error',
+                              toast:true,
+                              title:error.message,
+                              showConfirmButton:false,
+                              timer:3000
+                          });
             });
-        });
     } else {
         if (emailInput.value === '') emailInput.classList.add('is-invalid');
         if (passwordInput.value === '') passwordInput.classList.add('is-invalid');
