@@ -6,17 +6,17 @@ Manage your finance tasks
 * [App Functions](#app-functions)
 
 ## Technologies Used
-* HTML5
-* CSS3
-* [Bootstrap 4.3.1](https://getbootstrap.com/)
+* HTML
+* CSS
+* [Bootstrap 4](https://getbootstrap.com/)
 * Vanilla JavaScript
-* jQuery
-* [SweetAlert2](https://sweetalert2.github.io/)
+* [jQuery 3](https://jquery.com/)
+* [SweetAlert 2](https://sweetalert2.github.io/)
 * [Firebase Cloud](https://firebase.google.com/)
 
 ## App Functions
 * Add budget
-* Add expense title and value
-* Edit expense information
+* Update budget
+* Add expense
+* Update expense
 * Delete expense
-* Save your data (Account Required)
