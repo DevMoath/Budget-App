@@ -27,6 +27,7 @@ class UI {
         this.user_not_logged  = document.getElementById('user_not_logged');
         this.delete_all       = document.getElementById('delete_all');
         this.complete_all     = document.getElementById('complete_all');
+        this.app              = document.getElementById('app');
         this.element          = null;
         this.budget           = 0;
         this.itemList         = [];
@@ -315,6 +316,7 @@ class UI {
             if (user) {
                 this.user_logged.classList.remove('d-none');
                 this.user_not_logged.classList.add('d-none');
+                this.app.classList.remove('d-none');
 
                 let db = firebase.firestore();
 
