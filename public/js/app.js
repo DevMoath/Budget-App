@@ -1,39 +1,39 @@
 class UI {
     constructor() {
-        this.expenseList      = document.getElementById("expense-list");
-        this.budgetForm       = document.getElementById("budget-form");
-        this.budgetInput      = document.getElementById("budget-input");
-        this.budgetAmount     = document.getElementById("budget-amount");
-        this.expenseAmount    = document.getElementById("expense-amount");
-        this.balance          = document.getElementById("balance");
-        this.balanceAmount    = document.getElementById("balance-amount");
-        this.expenseForm      = document.getElementById("expense-form");
-        this.expenseInput     = document.getElementById("expense-input");
-        this.amountInput      = document.getElementById("amount-input");
-        this.expenseList      = document.getElementById("expense-list");
-        this.model_id         = document.getElementById('expense_id');
-        this.model_title      = document.getElementById('title');
-        this.model_value      = document.getElementById('value');
-        this.edit_button      = document.getElementById('edit');
-        this.delete_button    = document.getElementById('delete');
-        this.select_option    = document.getElementById('currency');
-        this.total_expenses   = document.getElementById('total');
-        this.budget_currency  = document.getElementById('budget-currency');
+        this.expenseList = document.getElementById("expense-list");
+        this.budgetForm = document.getElementById("budget-form");
+        this.budgetInput = document.getElementById("budget-input");
+        this.budgetAmount = document.getElementById("budget-amount");
+        this.expenseAmount = document.getElementById("expense-amount");
+        this.balance = document.getElementById("balance");
+        this.balanceAmount = document.getElementById("balance-amount");
+        this.expenseForm = document.getElementById("expense-form");
+        this.expenseInput = document.getElementById("expense-input");
+        this.amountInput = document.getElementById("amount-input");
+        this.expenseList = document.getElementById("expense-list");
+        this.model_id = document.getElementById('expense_id');
+        this.model_title = document.getElementById('title');
+        this.model_value = document.getElementById('value');
+        this.edit_button = document.getElementById('edit');
+        this.delete_button = document.getElementById('delete');
+        this.select_option = document.getElementById('currency');
+        this.total_expenses = document.getElementById('total');
+        this.budget_currency = document.getElementById('budget-currency');
         this.expense_currency = document.getElementById('expense-currency');
         this.balance_currency = document.getElementById('balance-currency');
-        this.toggler          = document.getElementById("toggler");
-        this.menu             = document.getElementById("menu");
-        this.user_logged      = document.getElementById('user_logged');
-        this.user_not_logged  = document.getElementById('user_not_logged');
-        this.delete_all       = document.getElementById('delete_all');
-        this.complete_all     = document.getElementById('complete_all');
-        this.app              = document.getElementById('app');
-        this.element          = null;
-        this.budget           = 0;
-        this.itemList         = [];
-        this.currency         = '$';
-        this.success_message  = 'Your work has been saved';
-        this.failed_message   = 'Your work has not been saved';
+        this.toggler = document.getElementById("toggler");
+        this.menu = document.getElementById("menu");
+        this.user_logged = document.getElementById('user_logged');
+        this.user_not_logged = document.getElementById('user_not_logged');
+        this.delete_all = document.getElementById('delete_all');
+        this.complete_all = document.getElementById('complete_all');
+        this.app = document.getElementById('app');
+        this.element = null;
+        this.budget = 0;
+        this.itemList = [];
+        this.currency = '$';
+        this.success_message = 'Your work has been saved';
+        this.failed_message = 'Your work has not been saved';
     }
 
     generateID() {
@@ -42,13 +42,13 @@ class UI {
 
     message(type) {
         Swal.fire({
-                      position:'top-start',
-                      type:type ? 'success' : 'error',
-                      toast:true,
-                      title:type ? this.success_message : this.failed_message,
-                      showConfirmButton:false,
-                      timer:3000
-                  })
+            position: 'top-start',
+            type: type ? 'success' : 'error',
+            toast: true,
+            title: type ? this.success_message : this.failed_message,
+            showConfirmButton: false,
+            timer: 3000
+        })
     }
 
     save() {
@@ -62,13 +62,13 @@ class UI {
         }
 
         let userId = firebase.auth().currentUser.uid;
-        let self   = this;
+        let self = this;
         // Add a new document in collection "users"
         firebase.firestore().collection("users").doc(userId).set({
-                                                                     budget:this.budget,
-                                                                     itemList:string,
-                                                                     currency:this.currency
-                                                                 })
+            budget: this.budget,
+            itemList: string,
+            currency: this.currency
+        })
             .then(function () {
                 self.message(true);
             })
@@ -84,8 +84,8 @@ class UI {
             this.budgetInput.classList.add('is-invalid');
         } else {
             this.budgetAmount.innerText = this.formatNumber(value);
-            this.budgetInput.value      = '';
-            this.budget                 = value;
+            this.budgetInput.value = '';
+            this.budget = value;
             this.showBalance();
             this.save();
         }
@@ -96,8 +96,8 @@ class UI {
     }
 
     showBalance() {
-        let expense                  = this.totalExpense();
-        let total                    = this.budget - expense;
+        let expense = this.totalExpense();
+        let total = this.budget - expense;
         this.balanceAmount.innerText = this.formatNumber(total);
 
         if (total < 0) {
@@ -124,12 +124,12 @@ class UI {
             });
 
             if (new_list.length === this.itemList.length) {
-                this.complete_all.innerHTML      = '<i class="fas fa-times"></i> Incomplete All';
+                this.complete_all.innerHTML = '<i class="fas fa-times"></i> Incomplete All';
                 this.complete_all.dataset.status = 'false';
                 this.complete_all.classList.remove('btn-success');
                 this.complete_all.classList.add('btn-warning');
             } else {
-                this.complete_all.innerHTML      = '<i class="fas fa-check-double"></i> Complete All';
+                this.complete_all.innerHTML = '<i class="fas fa-check-double"></i> Complete All';
                 this.complete_all.dataset.status = 'true';
                 this.complete_all.classList.add('btn-success');
                 this.complete_all.classList.remove('btn-warning');
@@ -139,8 +139,8 @@ class UI {
 
     submitExpenseForm() {
         let expenseValue = this.expenseInput.value;
-        let amountValue  = this.amountInput.value;
-        let flag         = true;
+        let amountValue = this.amountInput.value;
+        let flag = true;
 
         if (expenseValue === '') {
             this.expenseInput.classList.add('is-invalid');
@@ -154,13 +154,13 @@ class UI {
 
         if (flag) {
             this.expenseInput.value = '';
-            this.amountInput.value  = '';
+            this.amountInput.value = '';
 
             let expense = {
-                id:this.generateID(),
-                title:expenseValue,
-                amount:parseInt(amountValue),
-                isCompleted:false
+                id: this.generateID(),
+                title: expenseValue,
+                amount: parseInt(amountValue),
+                isCompleted: false
             };
 
             this.itemList.push(expense);
@@ -171,7 +171,7 @@ class UI {
     }
 
     addExpense(expense) {
-        let div    = document.createElement('tr');
+        let div = document.createElement('tr');
         let amount = this.formatNumber(expense.amount);
 
         let checked = '';
@@ -208,9 +208,9 @@ class UI {
     completeExpense(element) {
         let id = element.dataset.id;
 
-        let parent   = element.parentElement.parentElement.parentElement;
+        let parent = element.parentElement.parentElement.parentElement;
         let children = element.parentElement.parentElement.parentElement.children;
-        let index    = this.itemList.findIndex((item => item.id === id));
+        let index = this.itemList.findIndex((item => item.id === id));
 
         // Edit values in list and DOM
         element.checked = this.itemList[index].isCompleted = !this.itemList[index].isCompleted;
@@ -248,7 +248,7 @@ class UI {
             return item.id === id;
         });
 
-        this.model_id.value    = expense[0].id;
+        this.model_id.value = expense[0].id;
         this.model_title.value = expense[0].title;
         this.model_value.value = expense[0].amount;
 
@@ -266,8 +266,8 @@ class UI {
         parent.children[2].innerText = this.currency + this.formatNumber(this.model_value.value);
 
         // Edit values in list
-        let index                   = this.itemList.findIndex((item => item.id === this.model_id.value));
-        this.itemList[index].title  = this.model_title.value;
+        let index = this.itemList.findIndex((item => item.id === this.model_id.value));
+        this.itemList[index].title = this.model_title.value;
         this.itemList[index].amount = parseInt(this.model_value.value);
 
         this.showBalance();
@@ -280,7 +280,7 @@ class UI {
             element = this.element;
         }
 
-        let id     = element.dataset.id;
+        let id = element.dataset.id;
         let parent = element.parentElement.parentElement;
 
         // remove from the DOM
@@ -300,7 +300,7 @@ class UI {
         let children = this.expenseList.children;
 
         for (let i = 0; i < children.length; i++) {
-            let child       = children[i].children[2];
+            let child = children[i].children[2];
             child.innerText = child.innerText.replace(this.currency, currency);
         }
 
@@ -339,12 +339,12 @@ class UI {
             } else {
                 this.user_logged.classList.add('d-none');
                 this.user_not_logged.classList.remove('d-none');
-                this.removeLoader();
                 $('#login_modal').modal({
-                                            backdrop:'static',
-                                            keyboard:false
-                                        });
+                    backdrop: 'static',
+                    keyboard: false
+                });
             }
+            this.removeLoader();
         });
     }
 
@@ -365,7 +365,7 @@ class UI {
     }
 
     deleteAllExpense() {
-        this.itemList              = [];
+        this.itemList = [];
         this.expenseList.innerHTML = '';
         this.showBalance();
         this.save();
@@ -373,7 +373,7 @@ class UI {
 
     completeAllExpense(status) {
         this.expenseList.innerHTML = '';
-        let check                  = status === 'true';
+        let check = status === 'true';
 
         for (let i = 0; i < this.itemList.length; i++) {
             this.itemList[i].isCompleted = check;
@@ -406,14 +406,14 @@ function eventListeners() {
 
     ui.delete_all.addEventListener('click', () => {
         Swal.fire({
-                      title:'Are you sure you want to delete all your expenses ?',
-                      text:"You won't be able to revert this!",
-                      type:'warning',
-                      showCancelButton:true,
-                      confirmButtonColor:'#d33',
-                      cancelButtonColor:'#3085d6',
-                      confirmButtonText:'Yes, delete it!'
-                  }).then((result) => {
+            title: 'Are you sure you want to delete all your expenses ?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
             if (result.value) {
                 ui.deleteAllExpense();
             }
@@ -430,14 +430,14 @@ function eventListeners() {
 
     ui.delete_button.addEventListener('click', () => {
         Swal.fire({
-                      title:'Are you sure?',
-                      text:"You won't be able to revert this!",
-                      type:'warning',
-                      showCancelButton:true,
-                      confirmButtonColor:'#d33',
-                      cancelButtonColor:'#3085d6',
-                      confirmButtonText:'Yes, delete it!'
-                  }).then((result) => {
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
             if (result.value) {
                 ui.deleteExpense(null);
             }
@@ -464,28 +464,28 @@ function eventListeners() {
             ui.showEditModel(event.target);
         } else if (event.target.classList.contains('delete-icon')) {
             Swal.fire({
-                          title:'Are you sure?',
-                          text:"You won't be able to revert this!",
-                          type:'warning',
-                          showCancelButton:true,
-                          confirmButtonColor:'#d33',
-                          cancelButtonColor:'#3085d6',
-                          confirmButtonText:'Yes, delete it!'
-                      }).then((result) => {
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
                 if (result.value) {
                     ui.deleteExpense(event.target);
                 }
             });
         } else if (event.target.classList.contains('fa-trash-alt')) {
             Swal.fire({
-                          title:'Are you sure?',
-                          text:"You won't be able to revert this!",
-                          type:'warning',
-                          showCancelButton:true,
-                          confirmButtonColor:'#d33',
-                          cancelButtonColor:'#3085d6',
-                          confirmButtonText:'Yes, delete it!'
-                      }).then((result) => {
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
                 if (result.value) {
                     ui.deleteExpense(event.target.parentElement);
                 }
@@ -523,8 +523,8 @@ function eventListeners() {
         if (target.length) {
             event.preventDefault();
             $('html, body').stop().animate({
-                                               scrollTop:target.offset().top
-                                           }, 500);
+                scrollTop: target.offset().top
+            }, 500);
         }
     });
 
@@ -539,7 +539,7 @@ document.addEventListener('gesturestart', e => {
 document.addEventListener('DOMContentLoaded', () => {
     eventListeners();
 
-    let emailInput    = document.getElementById('email');
+    let emailInput = document.getElementById('email');
     let passwordInput = document.getElementById('password');
 
     emailInput.addEventListener('input', () => {
@@ -550,9 +550,9 @@ document.addEventListener('DOMContentLoaded', () => {
         passwordInput.classList.remove('is-invalid');
     });
 
-    let loginBtn         = document.getElementById('login');
+    let loginBtn = document.getElementById('login');
     let createAccountBtn = document.getElementById('createAccount');
-    let logoutBtn        = document.getElementById('logout');
+    let logoutBtn = document.getElementById('logout');
 
     loginBtn.addEventListener('click', event => {
         event.preventDefault();
@@ -586,13 +586,13 @@ function login(emailInput, passwordInput) {
             })
             .catch((error) => {
                 Swal.fire({
-                              position:'top-end',
-                              type:'error',
-                              toast:true,
-                              title:error.message,
-                              showConfirmButton:false,
-                              timer:7000
-                          });
+                    position: 'top-end',
+                    type: 'error',
+                    toast: true,
+                    title: error.message,
+                    showConfirmButton: false,
+                    timer: 7000
+                });
             });
 
     } else {
@@ -617,13 +617,13 @@ function createAccount(emailInput, passwordInput) {
             })
             .catch(error => {
                 Swal.fire({
-                              position:'top-end',
-                              type:'error',
-                              toast:true,
-                              title:error.message,
-                              showConfirmButton:false,
-                              timer:3000
-                          });
+                    position: 'top-end',
+                    type: 'error',
+                    toast: true,
+                    title: error.message,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
             });
     } else {
         if (emailInput.value === '') emailInput.classList.add('is-invalid');
@@ -643,7 +643,7 @@ function logout() {
 
 function loadData(ui, data) {
     ui.budget += parseInt(data.budget);
-    ui.currency  = data.currency;
+    ui.currency = data.currency;
     let expenses = data.itemList;
 
     let options = ui.select_option.options;
