@@ -1,324 +1,312 @@
 <!DOCTYPE html>
-<html lang="en" id="page">
-<head>
-    <title>Budget App</title>
-    <!-- meta data -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="apple-touch-icon" sizes="128x128" href="img/logo.png">
-    <!-- TODO Add image 300x300 for link -->
-    <meta name="description" content="Manage your finance tasks.">
-    <meta property="og:title" content="Budget App"/>
-    <meta property="og:url" content="https://budget-app.cf/"/>
-    <meta property="og:description" content="Manage your finance tasks.">
-    <meta property="og:image" content="img/logo.png">
-    <!-- App Logo -->
-    <link rel="icon" href="img/logo.png">
-    <!-- bootstrap css -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Custom css -->
-    <link rel="stylesheet" href="css/index.css">
-    <!-- jquery -->
-    <script src="js/jquery-3.3.1.min.js"></script>
-    <!-- bootstrap js -->
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <!-- font awesome -->
-    <link rel="stylesheet" href="css/all.min.css">
-    <!-- sweetalert library -->
-    <script src="js/sweetalert2@8.js"></script>
-</head>
-<body>
-
-<!-- Login/Create Account Modal -->
-<div class="modal fade" id="login_modal" tabindex="-1" role="dialog" aria-labelledby="login_modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Login</h5>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" class="form-control" id="email" placeholder="name@example.com">
-                    <small class="invalid-feedback">Provide valid email</small>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="pass">
-                    <small class="invalid-feedback">Password must be at least 6 characters</small>
-                </div>
-            </div>
-            <div class="modal-footer d-flex">
-                <button type="button" class="btn btn-secondary mr-auto" id="createAccount">Create Account</button>
-                <button type="button" class="btn btn-primary" id="login">Login</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Task Modal -->
-<div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="login_modal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Expense</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="expense_id">
-                <div class="form-group">
-                    <label for="title">Expense Title</label>
-                    <input type="text" class="form-control" id="title">
-                    <small class="invalid-feedback">Title can't be empty</small>
-                </div>
-                <div class="form-group">
-                    <label for="value">Expense Value</label>
-                    <input type="number" class="form-control" id="value" min="0">
-                    <small class="invalid-feedback">Value can't be empty or negative</small>
-                </div>
-            </div>
-            <div class="modal-footer d-flex">
-                <button type="button" class="btn btn-danger mr-auto" id="delete">Delete Expense</button>
-                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="edit">Confirm Edit</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container-fluid">
-
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <span class="navbar-brand">
-            <img src="img/logo.png" width="30" height="30" alt="Logo">
-            budget app
-        </span>
-
-        <div class="ml-auto">
-            <select class="custom-select custom-select-sm" id="currency">
-                <option value="$">$</option>
-                <option value="SR">SR</option>
-            </select>
-        </div>
-
-        <button class="navbar-toggler border-0" id="toggler" type="button" data-toggle="collapse" data-target="#navbar"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-ellipsis-v fa-fw" id="menu"></i>
-        </button>
-
-        <div class="collapse navbar-collapse d-md-flex justify-content-end" id="navbar">
-            <div id="user_not_logged" class="d-none">
-                <ul class="navbar-nav">
-                    <li class="nav-item my-1 mx-auto">
-                        <button type="button" class="btn btn-link text-light" data-toggle="modal"
-                                data-target="#login_modal">
-                            Create Account
-                        </button>
-                    </li>
-                    <li class="nav-item my-1 mx-auto">
-                        <button type="button" class="btn btn-primary mx-1" data-toggle="modal"
-                                data-target="#login_modal">
-                            Login
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div id="user_logged" class="d-none">
-                <ul class="navbar-nav">
-                    <li class="nav-item my-1 mx-auto">
-                        <button class="btn btn-link text-light" type="button" id="logout">
-                            Log Out
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- NavBar -->
-    <a href="#page" class="position-fixed fade btn btn-lg btn-primary rounded-circle"
-       style="bottom: 2%; right: 2%; z-index: 10" id="top" role="button">
-        <i class="fas fa-arrow-up" style="transform: scale(1.5)"></i>
-    </a>
-
-    <div class="row mt-5 d-none" id="app">
-        <div class="col-12 mx-auto mt-4">
-
-            <div class="row mb-5">
-
-                <div class="col-lg-5 my-3 mx-auto">
-                    <!-- budget form -->
-                    <form id="budget-form" class="border rounded p-3">
-                        <div class="form-group">
-                            <label for="budget-input" class="font-18 font-weight-bold">Budget</label>
-                            <input type="number" class="form-control budget-input" id="budget-input"
-                                   placeholder="e.g. 5000">
-                            <small class="invalid-feedback">Value can't be empty or negative</small>
-                        </div>
-                        <!-- submit button -->
-                        <button type="submit" class="btn btn-primary" id="budget-submit">
-                            Add Budget
-                        </button>
-                    </form>
-                </div>
-
-                <div class="col-lg-6 mx-auto my-auto">
-                    <!-- app info -->
-                    <div class="row my-3">
-                        <div class="col-sm-4 text-center mb-4">
-                            <h5 class="text-uppercase info-title mb-3">budget</h5>
-                            <span class="budget-icon">
-                                <i class="fas fa-money-bill-alt text-primary"></i>
-                            </span>
-                            <h4 class="text-uppercase mt-3 text-success d-none" id="budget">
-                                <span id="budget-currency"></span>
-                                <span id="budget-amount">0</span>
-                            </h4>
-                            <div class="d-flex justify-content-center mt-4 loader">
-                                <div class="spinner-border" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4 text-center mb-4">
-                            <h5 class="text-uppercase info-title mb-3">expenses</h5>
-                            <span class="expense-icon">
-                                <i class="far fa-credit-card text-primary"></i>
-                            </span>
-                            <h4 class="text-uppercase mt-3 text-danger d-none" id="expense">
-                                <span id="expense-currency"></span>
-                                <span id="expense-amount">0</span>
-                            </h4>
-                            <div class="d-flex justify-content-center mt-4 loader">
-                                <div class="spinner-border" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4 text-center mb-4">
-                            <h5 class="text-uppercase info-title mb-3">balance</h5>
-                            <span class="balance-icon">
-                                <i class="fas fa-dollar-sign text-primary"></i>
-                            </span>
-                            <h4 class="text-uppercase mt-3 d-none" id="balance">
-                                <span id="balance-currency"></span>
-                                <span id="balance-amount">0</span>
-                            </h4>
-                            <div class="d-flex justify-content-center mt-4 loader">
-                                <div class="spinner-border" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                            </div>
+<html lang="en">
+    <head>
+        <title>Budget App</title>
+        <!-- meta data -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="apple-touch-icon" sizes="128x128" href="img/logo.png">
+        <meta name="description" content="Manage your finance tasks.">
+        <meta property="og:title" content="Budget App"/>
+        <meta property="og:url" content="https://budget-app.cf/"/>
+        <meta property="og:description" content="Manage your finance tasks.">
+        <meta property="og:image" content="img/logo.png">
+        <!-- App Logo -->
+        <link rel="icon" href="img/logo.png">
+        <!-- bootstrap css -->
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <!-- Custom css -->
+        <link rel="stylesheet" href="css/index.css">
+        <!-- jquery -->
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <!-- bootstrap js -->
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <!-- font awesome -->
+        <link rel="stylesheet" href="css/all.min.css">
+        <!-- sweetalert library -->
+        <script src="js/sweetalert2@8.js"></script>
+    </head>
+    <body>
+        <div class="vh-100 w-100 bg-light fixed-top" id="page_loader">
+            <div class="h-100 d-flex justify-content-center align-items-center">
+                <div class="loadingio-spinner-dual-ring-xwtaukmzkdj">
+                    <div class="ldio-vbqjkcwfhjl">
+                        <div></div>
+                        <div>
+                            <div></div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="row mb-5">
-                <div class="col-lg-5 my-3 mx-auto">
-                    <!-- expense form -->
-                    <form id="expense-form" class="border rounded p-3">
-                        <div class="form-group">
-                            <label for="expense-input" class="font-18 font-weight-bold">
-                                Expense Title
-                            </label>
-                            <input type="text" class="form-control expense-input" id="expense-input"
-                                   placeholder="e.g. Fix car">
-                            <small class="invalid-feedback">Title can't be empty</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="amount-input" class="font-18 font-weight-bold">
-                                Expense Value
-                            </label>
-                            <input type="number" class="form-control expense-input" id="amount-input"
-                                   placeholder="e.g. 2000" min="0">
-                            <small class="invalid-feedback">Value can't be empty or negative</small>
-                        </div>
-                        <!-- submit button -->
-                        <button type="submit" class="btn btn-primary" id="expense-submit">
+        </div>
+        <div class="container-fluid">
+            <!-- Nav Bar -->
+            <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+                <span class="navbar-brand">
+                    <img src="img/logo.png" width="30" height="30" alt="Logo">
+                    budget app
+                </span>
+                <div class="ml-auto d-none">
+                    <select class="custom-select custom-select-sm rounded" id="currency_option">
+                        <option value="$">$</option>
+                        <option value="SR">SR</option>
+                        <option value="€">€</option>
+                        <option value="¥">¥</option>
+                        <option value="£">£</option>
+                    </select>
+                </div>
+                <div class="d-none">
+                    <button class="btn btn-primary rounded animate action-button ml-2" type="button" id="logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </nav>
+            <!-- App body -->
+            <div class="row my-5" id="app">
+                <div class="btn-group dropup">
+                    <!-- Add button -->
+                    <button class="btn btn-lg btn-primary position-fixed rounded-circle add-button animate action-button shadow-lg"
+                            style="right: 2%; bottom: 2%; z-index: 1020;" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false" data-offset="0,20">
+                        <i class="fas fa-plus" style="transform: scale(1.5)"></i>
+                    </button>
+                    <div class="dropdown-menu mr-5 shadow-lg rounded" aria-labelledby="dropdownMenuOffset">
+                        <a class="dropdown-item py-2 rounded" data-toggle="modal" data-target="#budget_modal"
+                           href="#"
+                           id="add_budget">
+                            <i class="fas fa-wallet fa-fw mr-2"></i>
+                            Update Budget
+                        </a>
+                        <a class="dropdown-item py-2 rounded" data-toggle="modal" data-target="#expense_modal"
+                           href="#">
+                            <i class="fas fa-money-bill-wave fa-fw mr-2"></i>
                             Add Expense
-                        </button>
-                    </form>
+                        </a>
+                    </div>
                 </div>
-                <div class="col-lg-6 my-3 mx-auto">
-                    <!-- expense list -->
-                    <div>
-
-                        <div class="table-responsive tableFixHead mb-3">
-                            <table class="table table-hover text-center">
-                                <thead>
-                                <tr class="text-light">
-                                    <th class="bg-dark align-middle" scope="col" style="width: 5%"></th>
-                                    <th class="bg-dark align-middle" scope="col" style="width: 40%">Title</th>
-                                    <th class="bg-dark align-middle" scope="col" style="width: 25%">Value</th>
-                                    <th class="bg-dark align-middle" scope="col" style="width: 30%">Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody id="expense-list">
-                                <tr class="loader">
-                                    <td colspan="4">
-                                        <div class="d-flex justify-content-center">
-                                            <div class="spinner-border" role="status">
-                                                <span class="sr-only">Loading...</span>
-                                            </div>
+                <div class="col-12 mx-auto mt-4">
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto my-auto">
+                            <!-- app info -->
+                            <div class="row my-3">
+                                <div class="col-sm-4 text-center mb-4">
+                                    <h5 class="text-uppercase info-title mb-3">budget</h5>
+                                    <span class="budget-icon">
+                                        <i class="fas fa-wallet text-primary"></i>
+                                    </span>
+                                    <h4 class="text-uppercase mt-3 text-success d-none">
+                                        <span class="currency">$</span>
+                                        <span id="budget_amount">0</span>
+                                    </h4>
+                                    <div class="d-flex justify-content-center mt-4 loader">
+                                        <div class="spinner-border" role="status">
+                                            <span class="sr-only">Loading...</span>
                                         </div>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-4 text-center my-2">
-                                Total of expenses :
-                                <span class="badge badge-pill badge-primary" id="total">0</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 text-center mb-4">
+                                    <h5 class="text-uppercase info-title mb-3">expenses</h5>
+                                    <span class="expense-icon">
+                                        <i class="fas fa-money-bill-wave text-primary"></i>
+                                    </span>
+                                    <h4 class="text-uppercase mt-3 text-danger d-none">
+                                        <span class="currency">$</span>
+                                        <span id="expense_amount">0</span>
+                                    </h4>
+                                    <div class="d-flex justify-content-center mt-4 loader">
+                                        <div class="spinner-border" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 text-center mb-4">
+                                    <h5 class="text-uppercase info-title mb-3">balance</h5>
+                                    <span class="balance-icon">
+                                        <i class="fas fa-dollar-sign text-primary"></i>
+                                    </span>
+                                    <h4 class="text-uppercase mt-3 d-none">
+                                        <span class="currency">$</span>
+                                        <span id="balance_amount">0</span>
+                                    </h4>
+                                    <div class="d-flex justify-content-center mt-4 loader">
+                                        <div class="spinner-border" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-4 text-center my-2">
-                                <button class="btn btn-danger d-none" id="delete_all">
-                                    <i class="far fa-trash-alt"></i> Delete All
+                        </div>
+                    </div>
+                    <div class="row mb-5">
+                        <div class="col-lg-8 my-auto mx-auto">
+                            <div>
+                                <div class="table-responsive tableFixHead mb-3">
+                                    <table class="table table-hover text-center">
+                                        <thead>
+                                            <tr class="text-light">
+                                                <th class="bg-dark align-middle" scope="col" width="5%">#</th>
+                                                <th class="bg-dark align-middle" scope="col" width="40%">
+                                                    Title
+                                                </th>
+                                                <th class="bg-dark align-middle" scope="col" width="25%">
+                                                    Value
+                                                </th>
+                                                <th class="bg-dark align-middle" scope="col" width="30%">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <!-- expense list -->
+                                        <tbody id="expenses_list">
+                                            <tr class="loader">
+                                                <td colspan="4">
+                                                    <div class="d-flex justify-content-center">
+                                                        <div class="spinner-border" role="status">
+                                                            <span class="sr-only">Loading...</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4 text-center my-2 my-sm-auto">
+                                        Total :
+                                        <span class="badge badge-pill badge-primary rounded" id="total">0</span>
+                                    </div>
+                                    <div class="col-sm-4 text-center my-2">
+                                        <button class="btn btn-danger rounded animate action-button shadow d-none"
+                                                id="delete_all">
+                                            <i class="far fa-trash-alt"></i> Delete All
+                                        </button>
+                                    </div>
+                                    <div class="col-sm-4 text-center my-2">
+                                        <button class="btn btn-warning rounded animate action-button shadow d-none"
+                                                id="complete_all" data-status="">
+                                            <i class="far fa-trash-alt"></i> Delete All
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modals -->
+                <!-- Add Expense Modal -->
+                <div class="modal fade" id="expense_modal" tabindex="-1" role="dialog"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header position-relative">
+                                <h5 class="modal-title">Add Expense</h5>
+                                <button type="button"
+                                        class="btn btn-danger animate action-button shadow position-absolute rounded"
+                                        style="right: 5px; top: 5px" data-dismiss="modal">
+                                    <i class="fas fa-times"></i>
                                 </button>
                             </div>
-                            <div class="col-sm-4 text-center my-2">
-                                <button class="btn btn-warning d-none" id="complete_all" data-status="">
-
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="expense_title">Expense Title</label>
+                                    <input type="text" class="form-control" id="expense_title" placeholder="Fix Car">
+                                    <small class="invalid-feedback">Title can't be empty</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expense_value">Expense Value</label>
+                                    <input type="number" class="form-control" min="0" id="expense_value"
+                                           placeholder="5000">
+                                    <small class="invalid-feedback">Value can't be empty or negative</small>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success animate action-button rounded"
+                                        id="expense_button" data-fun-type="Add">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Update Budget Modal -->
+                <div class="modal fade" id="budget_modal" tabindex="-1" role="dialog"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Update Budget</h5>
+                                <button type="button"
+                                        class="btn btn-danger animate action-button shadow position-absolute rounded"
+                                        style="right: 5px; top: 5px" data-dismiss="modal">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="budget_value">Budget Value</label>
+                                    <input type="number" class="form-control" id="budget_value" min="0" value="0">
+                                    <small class="invalid-feedback">Value can't be empty or negative</small>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success animate action-button rounded"
+                                        id="budget_button">
+                                    Update
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+            <!-- Footer -->
+            <footer class="ml-3 mb-3 fixed-bottom" style="width: 200px">
+                <a href="https://twitter.com/Dev_Moath"
+                   class="btn btn-lg rounded text-light bg-primary shadow-lg mx-1 animate action-button">
+                    <i class="fab fa-twitter fa-fw"></i>
+                </a>
+                <a href="https://github.com/DevMoath"
+                   class="btn btn-lg rounded text-light bg-dark shadow-lg mx-1 animate action-button">
+                    <i class="fab fa-github fa-fw"></i>
+                </a>
+            </footer>
         </div>
-    </div>
-
-</div>
-
-<!-- Footer -->
-<footer class="text-center mb-4">
-    <a href="https://twitter.com/Dev_Moath"
-       class="btn btn-lg rounded-pill text-light bg-primary shadow-lg">
-        <i class="fab fa-twitter fa-fw"></i>
-    </a>
-    <a href="https://github.com/DevMoath"
-       class="btn btn-lg rounded-pill text-light bg-dark shadow-lg ml-2">
-        <i class="fab fa-github fa-fw"></i>
-    </a>
-</footer>
-
-<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-<script src="/__/firebase/6.2.0/firebase-app.js"></script>
-
-<!-- Add Firebase products that you want to use -->
-<script src="/__/firebase/6.2.0/firebase-auth.js"></script>
-<script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-database.js"></script>
-
-<!-- Initialize Firebase -->
-<script src="/__/firebase/init.js"></script>
-
-<!-- script js -->
-<script src="js/app.js" defer></script>
-</body>
+        <!-- Login/Create Account Modal -->
+        <div class="modal fade" id="login_modal" tabindex="-1" role="dialog"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Login</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="email">Email address</label>
+                            <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                            <small class="invalid-feedback">Provide valid email</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="pass">
+                            <small class="invalid-feedback">Password must be at least 6 characters</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex">
+                        <button type="button" class="btn btn-secondary mr-auto" id="register">
+                            Register
+                        </button>
+                        <button type="button" class="btn btn-primary" id="login">Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+        <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+        <!-- Add Firebase products that you want to use -->
+        <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+        <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-database.js"></script>
+        <!-- Initialize Firebase -->
+        <script src="/__/firebase/init.js"></script>
+        <!-- script js -->
+        <script type="module" src="js/index.js" defer></script>
+    </body>
 </html>

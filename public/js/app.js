@@ -1,91 +1,47 @@
-class UI {
-    constructor() {
-        this.expenseList = document.getElementById("expense-list");
-        this.budgetForm = document.getElementById("budget-form");
-        this.budgetInput = document.getElementById("budget-input");
-        this.budgetAmount = document.getElementById("budget-amount");
-        this.expenseAmount = document.getElementById("expense-amount");
-        this.balance = document.getElementById("balance");
-        this.balanceAmount = document.getElementById("balance-amount");
-        this.expenseForm = document.getElementById("expense-form");
-        this.expenseInput = document.getElementById("expense-input");
-        this.amountInput = document.getElementById("amount-input");
-        this.expenseList = document.getElementById("expense-list");
-        this.model_id = document.getElementById('expense_id');
-        this.model_title = document.getElementById('title');
-        this.model_value = document.getElementById('value');
-        this.edit_button = document.getElementById('edit');
-        this.delete_button = document.getElementById('delete');
-        this.select_option = document.getElementById('currency');
-        this.total_expenses = document.getElementById('total');
-        this.budget_currency = document.getElementById('budget-currency');
-        this.expense_currency = document.getElementById('expense-currency');
-        this.balance_currency = document.getElementById('balance-currency');
-        this.toggler = document.getElementById("toggler");
-        this.menu = document.getElementById("menu");
-        this.user_logged = document.getElementById('user_logged');
-        this.user_not_logged = document.getElementById('user_not_logged');
-        this.delete_all = document.getElementById('delete_all');
-        this.complete_all = document.getElementById('complete_all');
-        this.app = document.getElementById('app');
-        this.element = null;
-        this.budget = 0;
-        this.itemList = [];
-        this.currency = '$';
-        this.success_message = 'Your work has been saved';
-        this.failed_message = 'Your work has not been saved';
+export default class App {
+    constructor(page) {
+        this.page = page;
     }
 
     generateID() {
         return Math.random().toString(36).substr(2, 9);
     }
 
-    message(type) {
-        Swal.fire({
-            position: 'top-start',
-            type: type ? 'success' : 'error',
-            toast: true,
-            title: type ? this.success_message : this.failed_message,
-            showConfirmButton: false,
-            timer: 3000
-        })
-    }
-
     save() {
         let string = '';
 
-        for (let i = 0; i < this.itemList.length; i++) {
-            if (i !== this.itemList.length - 1)
-                string += JSON.stringify(this.itemList[i]) + '*';
+        for (let i = 0; i < this.page.items.length; i++) {
+            if (i !== this.page.items.length - 1)
+                string += JSON.stringify(this.page.items[i]) + '*';
             else
-                string += JSON.stringify(this.itemList[i]);
+                string += JSON.stringify(this.page.items[i]);
         }
 
         let userId = firebase.auth().currentUser.uid;
-        let self = this;
-        // Add a new document in collection "users"
+        let self   = this;
         firebase.firestore().collection("users").doc(userId).set({
-            budget: this.budget,
+            budget: self.page.budget,
             itemList: string,
-            currency: this.currency
+            currency: self.page.currency
         })
-            .then(function () {
-                self.message(true);
-            })
-            .catch(function (error) {
-                console.error("Error writing document: ", error);
-                self.message(false);
-            });
+                .then(function () {
+                    self.page.message('success', self.page.success);
+                })
+                .catch(function (error) {
+                    console.error("Error writing document: ", error);
+                    self.page.message('error', self.page.failed);
+                });
     }
 
-    submitBudgetForm() {
-        let value = this.budgetInput.value;
+    updateBudget() {
+        let value = this.page.budgetValue.value;
         if (value === '' || value < 0) {
-            this.budgetInput.classList.add('is-invalid');
+            this.page.budgetValue.classList.add('is-invalid');
         } else {
-            this.budgetAmount.innerText = this.formatNumber(value);
-            this.budgetInput.value = '';
-            this.budget = value;
+            this.page.budgetAmount.innerText = this.formatNumber(value);
+            this.page.budgetValue.value      = '';
+            this.page.budget                 = value;
+            $('#budget_modal').modal('hide');
             this.showBalance();
             this.save();
         }
@@ -96,130 +52,153 @@ class UI {
     }
 
     showBalance() {
-        let expense = this.totalExpense();
-        let total = this.budget - expense;
-        this.balanceAmount.innerText = this.formatNumber(total);
+        let expense                       = this.totalExpense();
+        let total                         = this.page.budget - expense;
+        this.page.balanceAmount.innerText = this.formatNumber(total);
+
+        let classAdd, classRemove;
 
         if (total < 0) {
-            this.balance.classList.remove('text-success', 'text-dark');
-            this.balance.classList.add('text-danger');
+            classAdd    = 'text-danger';
+            classRemove = ['text-success', 'text-dark'];
         } else if (total > 0) {
-            this.balance.classList.remove('text-dark', 'text-danger');
-            this.balance.classList.add('text-success');
+            classAdd    = 'text-success';
+            classRemove = ['text-dark', 'text-danger'];
         } else {
-            this.balance.classList.remove('text-success', 'text-danger');
-            this.balance.classList.add('text-dark');
+            classAdd    = 'text-dark';
+            classRemove = ['text-success', 'text-danger'];
         }
 
-        this.total_expenses.innerText = '' + this.itemList.length;
-        if (this.itemList.length === 0) {
-            this.delete_all.classList.add('d-none');
-            this.complete_all.classList.add('d-none');
-        } else {
-            this.delete_all.classList.remove('d-none');
-            this.complete_all.classList.remove('d-none');
+        this.page.balanceAmount.classList.remove(classRemove[0], classRemove[1]);
+        this.page.balanceAmount.classList.add(classAdd);
+        this.page.balanceAmount.parentElement.children[0].classList.remove(classRemove[0], classRemove[1]);
+        this.page.balanceAmount.parentElement.children[0].classList.add(classAdd);
 
-            let new_list = this.itemList.filter(item => {
+        this.page.totalExpenses.innerText = '' + this.page.items.length;
+
+        if (this.page.items.length === 0) {
+            this.page.deleteAll.classList.add('d-none');
+            this.page.completeAll.classList.add('d-none');
+        } else {
+            this.page.deleteAll.classList.remove('d-none');
+            this.page.completeAll.classList.remove('d-none');
+
+            let new_list = this.page.items.filter(item => {
                 return item.isCompleted;
             });
 
-            if (new_list.length === this.itemList.length) {
-                this.complete_all.innerHTML = '<i class="fas fa-times"></i> Incomplete All';
-                this.complete_all.dataset.status = 'false';
-                this.complete_all.classList.remove('btn-success');
-                this.complete_all.classList.add('btn-warning');
+            if (new_list.length === this.page.items.length) {
+                this.page.completeAll.innerHTML      = '<i class="fas fa-times"></i> Incomplete All';
+                this.page.completeAll.dataset.status = 'false';
+                this.page.completeAll.classList.remove('btn-success');
+                this.page.completeAll.classList.add('btn-warning');
             } else {
-                this.complete_all.innerHTML = '<i class="fas fa-check-double"></i> Complete All';
-                this.complete_all.dataset.status = 'true';
-                this.complete_all.classList.add('btn-success');
-                this.complete_all.classList.remove('btn-warning');
+                this.page.completeAll.innerHTML      = '<i class="fas fa-check-double"></i> Complete All';
+                this.page.completeAll.dataset.status = 'true';
+                this.page.completeAll.classList.add('btn-success');
+                this.page.completeAll.classList.remove('btn-warning');
             }
         }
     }
 
-    submitExpenseForm() {
-        let expenseValue = this.expenseInput.value;
-        let amountValue = this.amountInput.value;
-        let flag = true;
+    expenseValidation(element) {
+        let title = this.page.expenseTitle.value;
+        let value = this.page.expenseValue.value;
+        let flag  = true;
 
-        if (expenseValue === '') {
-            this.expenseInput.classList.add('is-invalid');
+        if (title === '') {
+            this.page.expenseTitle.classList.add('is-invalid');
             flag = false;
         }
 
-        if (amountValue === '' || amountValue < 0) {
-            this.amountInput.classList.add('is-invalid');
+        if (value === '' || value < 0) {
+            this.page.expenseValue.classList.add('is-invalid');
             flag = false;
         }
 
         if (flag) {
-            this.expenseInput.value = '';
-            this.amountInput.value = '';
+            this.page.expenseTitle.value = '';
+            this.page.expenseValue.value = '';
 
-            let expense = {
-                id: this.generateID(),
-                title: expenseValue,
-                amount: parseInt(amountValue),
-                isCompleted: false
-            };
-
-            this.itemList.push(expense);
-            this.addExpense(expense);
+            if (element !== null) {
+                let id                    = element.dataset.id;
+                let children              = element.children;
+                children[1].innerText     = title;
+                children[2].innerText     = this.page.currency + this.formatNumber(value);
+                let i                     = this.page.items.findIndex((item => item.id === id));
+                this.page.items[i].title  = title;
+                this.page.items[i].amount = parseInt(value);
+            } else {
+                let expense = {
+                    id: this.generateID(),
+                    title: title,
+                    amount: parseInt(value),
+                    isCompleted: false
+                };
+                this.page.items.push(expense);
+                this.addExpense(expense);
+            }
             this.showBalance();
             this.save();
+            $('#expense_modal').modal('hide');
         }
     }
 
     addExpense(expense) {
-        let div = document.createElement('tr');
-        let amount = this.formatNumber(expense.amount);
+        let div        = document.createElement('tr');
+        div.dataset.id = expense.id;
+        let amount     = this.formatNumber(expense.amount);
 
         let checked = '';
+        let icon    = 'far fa-square';
         if (expense.isCompleted) {
             checked = 'checked';
+            icon    = 'fas fa-check-square text-success';
             div.classList.add('table-primary');
         }
 
         div.innerHTML = `
             <td class="align-middle">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="check${expense.id}" data-id="${expense.id}" ${checked}>
-                    <label class="custom-control-label complete-icon" for="check${expense.id}"></label>
-                </div>
+                <i class="${icon} complete-icon" style="transform: scale(1.5)" data-checked="${expense.isCompleted}" data-id="${expense.id}"></i>
             </td>
             <td class="align-middle ${checked}">
                 ${expense.title}
             </td>
             <td class="align-middle ${checked}">
-                ${this.currency}${amount}
+                ${this.page.currency} ${amount}
             </td>
             <td class="align-middle">
-                <a href="#" role="button" class="edit-icon btn btn-success" data-id="${expense.id}">
+                <a href="#" role="button" class="btn btn-success rounded animate action-button shadow mx-1 my-1" data-id="${expense.id}" data-toggle="modal" data-target="#expense_modal">
                     <i class="fas fa-pen"></i>
                 </a>
-                <a href="#" role="button" class="delete-icon btn btn-danger" data-id="${expense.id}">
+                <a href="#" role="button" class="delete-icon btn btn-danger rounded animate action-button shadow mx-1 my-1" data-id="${expense.id}">
                     <i class="far fa-trash-alt"></i>
                 </a>
             </td>
         `;
-        this.expenseList.appendChild(div);
+        this.page.expenses.appendChild(div);
     }
 
     completeExpense(element) {
-        let id = element.dataset.id;
-
-        let parent = element.parentElement.parentElement.parentElement;
-        let children = element.parentElement.parentElement.parentElement.children;
-        let index = this.itemList.findIndex((item => item.id === id));
+        let id       = element.dataset.id;
+        let checked  = element.dataset.checked === 'true' ? 'false' : 'true';
+        let parent   = element.parentElement.parentElement;
+        let children = parent.children;
+        let index    = this.page.items.findIndex((item => item.id === id));
 
         // Edit values in list and DOM
-        element.checked = this.itemList[index].isCompleted = !this.itemList[index].isCompleted;
+        element.dataset.checked            = checked;
+        this.page.items[index].isCompleted = checked === 'true';
 
-        if (element.checked) {
+        if (checked === 'true') {
+            element.classList.remove('far', 'fa-square');
+            element.classList.add('fas', 'fa-check-square', 'text-success');
             parent.classList.add('table-primary');
             children[1].classList.add('checked');
             children[2].classList.add('checked');
         } else {
+            element.classList.add('far', 'fa-square');
+            element.classList.remove('fas', 'fa-check-square', 'text-success');
             parent.classList.remove('table-primary');
             children[1].classList.remove('checked');
             children[2].classList.remove('checked');
@@ -231,449 +210,100 @@ class UI {
 
     totalExpense() {
         let total = 0;
-        if (this.itemList.length > 0) {
-            total = this.itemList.reduce(function (accumulator, current) {
+        if (this.page.items.length > 0) {
+            total = this.page.items.reduce(function (accumulator, current) {
                 accumulator += current.amount;
                 return accumulator;
             }, 0);
         }
-        this.expenseAmount.innerText = this.formatNumber(total);
+        this.page.expenseAmount.innerText = this.formatNumber(total);
         return total;
     }
 
-    showEditModel(element) {
-        let id = element.dataset.id;
-
-        let expense = this.itemList.filter(function (item) {
-            return item.id === id;
-        });
-
-        this.model_id.value = expense[0].id;
-        this.model_title.value = expense[0].title;
-        this.model_value.value = expense[0].amount;
-
-        this.element = element;
-        element.parentElement.parentElement.classList.add('table-success');
-
-        $('#edit_modal').modal('show');
-    }
-
-    editExpense() {
-        let parent = this.element.parentElement.parentElement;
-
-        // Edit values in DOM
-        parent.children[1].innerText = this.model_title.value;
-        parent.children[2].innerText = this.currency + this.formatNumber(this.model_value.value);
-
-        // Edit values in list
-        let index = this.itemList.findIndex((item => item.id === this.model_id.value));
-        this.itemList[index].title = this.model_title.value;
-        this.itemList[index].amount = parseInt(this.model_value.value);
-
-        this.showBalance();
-        this.save();
-        $('#edit_modal').modal('hide');
-    }
-
     deleteExpense(element) {
-        if (element == null) {
-            element = this.element;
-        }
-
-        let id = element.dataset.id;
+        let id     = element.dataset.id;
         let parent = element.parentElement.parentElement;
 
         // remove from the DOM
-        this.expenseList.removeChild(parent);
+        this.page.expenses.removeChild(parent);
 
         // remove from the list
-        this.itemList = this.itemList.filter(function (item) {
+        this.page.items = this.page.items.filter((item) => {
             return item.id !== id;
         });
 
         this.showBalance();
         this.save();
-        $('#edit_modal').modal('hide');
     }
 
     changeCurrency(currency) {
-        let children = this.expenseList.children;
+        let children = this.page.expenses.children;
 
         for (let i = 0; i < children.length; i++) {
-            let child = children[i].children[2];
-            child.innerText = child.innerText.replace(this.currency, currency);
+            let child       = children[i].children[2];
+            child.innerText = child.innerText.replace(this.page.currency, currency);
         }
-
-        this.currency =
-            this.budget_currency.innerText =
-                this.expense_currency.innerText =
-                    this.balance_currency.innerText = currency;
+        this.page.currency = currency;
+        for (let i = 0; i < this.page.currencyFiled.length; i++) {
+            this.page.currencyFiled[i].innerText = currency;
+        }
         this.save();
     }
 
-    auth() {
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                this.user_logged.classList.remove('d-none');
-                this.user_not_logged.classList.add('d-none');
-                this.app.classList.remove('d-none');
-
-                let db = firebase.firestore();
-
-                let userId = firebase.auth().currentUser.uid;
-
-                let docRef = db.collection("users").doc(userId);
-
-                let self = this;
-
-                docRef.get().then((doc) => {
-                    if (doc.exists) {
-                        loadData(self, doc.data());
-                    } else {
-                        // doc.data() will be undefined in this case
-                        console.log("No such document!");
-                    }
-                }).catch(function (error) {
-                    console.log("Error getting document:", error);
-                });
-            } else {
-                this.user_logged.classList.add('d-none');
-                this.user_not_logged.classList.remove('d-none');
-                $('#login_modal').modal({
-                    backdrop: 'static',
-                    keyboard: false
-                });
-            }
-            this.removeLoader();
-        });
-    }
-
-    removeLoader() {
-        let loader = document.getElementsByClassName('loader');
-
-        for (let i = 0; i < loader.length; i++) {
-            loader[i].classList.add('d-none');
-            loader[i].classList.remove('d-flex');
-        }
-
-        document.getElementById('budget').classList.remove('d-none');
-        document.getElementById('budget-currency').innerText = this.currency;
-        document.getElementById('expense').classList.remove('d-none');
-        document.getElementById('expense-currency').innerText = this.currency;
-        document.getElementById('balance').classList.remove('d-none');
-        document.getElementById('balance-currency').innerText = this.currency;
-    }
-
     deleteAllExpense() {
-        this.itemList = [];
-        this.expenseList.innerHTML = '';
+        this.page.items              = [];
+        this.page.expenses.innerHTML = '';
         this.showBalance();
         this.save();
     }
 
     completeAllExpense(status) {
-        this.expenseList.innerHTML = '';
-        let check = status === 'true';
+        this.page.expenses.innerHTML = '';
+        let check                    = status === 'true';
 
-        for (let i = 0; i < this.itemList.length; i++) {
-            this.itemList[i].isCompleted = check;
-            this.addExpense(this.itemList[i]);
+        for (let i = 0; i < this.page.items.length; i++) {
+            this.page.items[i].isCompleted = check;
+            this.addExpense(this.page.items[i]);
         }
 
         this.showBalance();
         this.save();
     }
-}
 
-function eventListeners() {
-    let ui = new UI();
+    loadData(data) {
+        this.page.budget   = parseInt(data.budget);
+        this.page.currency = data.currency;
+        let expenses       = data.itemList;
 
-    ui.auth();
-
-    $('#edit_modal').on('shown.bs.modal', () => {
-        $('#title').focus();
-    });
-
-    $('#edit_modal').on('hidden.bs.modal', () => {
-        ui.element.parentElement.parentElement.classList.remove('table-success');
-        ui.element = null;
-    });
-
-    ui.toggler.addEventListener('click', () => {
-        ui.menu.classList.toggle("fa-ellipsis-v");
-        ui.menu.classList.toggle("fa-times");
-    });
-
-    ui.delete_all.addEventListener('click', () => {
-        Swal.fire({
-            title: 'Are you sure you want to delete all your expenses ?',
-            text: "You won't be able to revert this!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.value) {
-                ui.deleteAllExpense();
+        let options = this.page.currencyOption.options;
+        for (let i = 0; i < options.length; i++) {
+            if (this.page.currency === options[i].value) {
+                this.page.currencyOption.selectedIndex = i;
             }
-        });
-    });
+        }
 
-    ui.complete_all.addEventListener('click', (e) => {
-        ui.completeAllExpense(e.target.dataset.status);
-    });
+        this.page.budgetAmount.innerText = this.formatNumber(this.page.budget);
 
-    ui.select_option.addEventListener('change', (e) => {
-        ui.changeCurrency(e.target.value);
-    });
+        for (let i = 0; i < this.page.currencyFiled.length; i++) {
+            this.page.currencyFiled[i].innerText = this.page.currency;
+        }
 
-    ui.delete_button.addEventListener('click', () => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.value) {
-                ui.deleteExpense(null);
+        if (expenses !== '') {
+            expenses = expenses.split('*');
+            let list = [];
+
+            for (let i = 0; i < expenses.length; i++) {
+                list.push(JSON.parse(expenses[i]));
             }
-        });
-    });
 
-    ui.edit_button.addEventListener('click', () => {
-        ui.editExpense();
-    });
+            for (let i = 0; i < list.length; i++) {
+                this.addExpense(list[i]);
+            }
 
-    ui.budgetForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        ui.submitBudgetForm();
-    });
-
-    ui.expenseForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        ui.submitExpenseForm();
-    });
-
-    ui.expenseList.addEventListener('click', function (event) {
-        event.preventDefault();
-        if (event.target.classList.contains('edit-icon')) {
-            ui.showEditModel(event.target);
-        } else if (event.target.classList.contains('delete-icon')) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.value) {
-                    ui.deleteExpense(event.target);
-                }
-            });
-        } else if (event.target.classList.contains('fa-trash-alt')) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.value) {
-                    ui.deleteExpense(event.target.parentElement);
-                }
-            });
-        } else if (event.target.classList.contains('fa-pen')) {
-            ui.showEditModel(event.target.parentElement);
-        } else if (event.target.classList.contains('complete-icon')) {
-            ui.completeExpense(event.target.parentElement.children[0]);
-        }
-    });
-
-    ui.budgetInput.addEventListener('input', () => {
-        ui.budgetInput.classList.remove('is-invalid');
-    });
-
-    ui.expenseInput.addEventListener('input', () => {
-        ui.expenseInput.classList.remove('is-invalid');
-    });
-
-    ui.amountInput.addEventListener('input', () => {
-        ui.amountInput.classList.remove('is-invalid');
-    });
-
-    window.addEventListener('scroll', () => {
-        let top = document.querySelector('#top');
-        if (window.scrollY < 150) {
-            top.classList.remove('show');
-        } else {
-            top.classList.add('show');
-        }
-    });
-
-    $('a[href^="#"]').on('click', function (event) {
-        let target = $(this.getAttribute('href'));
-        if (target.length) {
-            event.preventDefault();
-            $('html, body').stop().animate({
-                scrollTop: target.offset().top
-            }, 500);
-        }
-    });
-
-    return ui;
-}
-
-// Disable zoom feature in mobile browsers
-document.addEventListener('gesturestart', e => {
-    e.preventDefault();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    eventListeners();
-
-    let emailInput = document.getElementById('email');
-    let passwordInput = document.getElementById('password');
-
-    emailInput.addEventListener('input', () => {
-        emailInput.classList.remove('is-invalid');
-    });
-
-    passwordInput.addEventListener('input', () => {
-        passwordInput.classList.remove('is-invalid');
-    });
-
-    let loginBtn = document.getElementById('login');
-    let createAccountBtn = document.getElementById('createAccount');
-    let logoutBtn = document.getElementById('logout');
-
-    loginBtn.addEventListener('click', event => {
-        event.preventDefault();
-        login(emailInput, passwordInput);
-    });
-
-    createAccountBtn.addEventListener('click', event => {
-        event.preventDefault();
-        createAccount(emailInput, passwordInput);
-    });
-
-    logoutBtn.addEventListener('click', event => {
-        event.preventDefault();
-        logout();
-    });
-});
-
-function login(emailInput, passwordInput) {
-
-    if (emailInput.value !== '' && passwordInput.value !== '') {
-
-        if (passwordInput.value.length < 6) {
-            passwordInput.classList.add('is-invalid');
-            return
+            this.page.items = list;
         }
 
-        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value)
-            .then(() => {
-                $('#login_modal').modal('hide');
-                $('#app').removeClass('d-none');
-            })
-            .catch((error) => {
-                Swal.fire({
-                    position: 'top-end',
-                    type: 'error',
-                    toast: true,
-                    title: error.message,
-                    showConfirmButton: false,
-                    timer: 7000
-                });
-            });
-
-    } else {
-        if (emailInput.value === '') emailInput.classList.add('is-invalid');
-        if (passwordInput.value === '') passwordInput.classList.add('is-invalid');
+        this.page.removeLoaders();
+        this.showBalance();
     }
-}
-
-function createAccount(emailInput, passwordInput) {
-
-    if (emailInput.value !== '' && passwordInput.value !== '') {
-
-        if (passwordInput.value.length < 6) {
-            passwordInput.classList.add('is-invalid');
-            return
-        }
-
-        firebase.auth().createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
-            .then(() => {
-                $('#login_modal').modal('hide');
-                $('#app').removeClass('d-none');
-            })
-            .catch(error => {
-                Swal.fire({
-                    position: 'top-end',
-                    type: 'error',
-                    toast: true,
-                    title: error.message,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            });
-    } else {
-        if (emailInput.value === '') emailInput.classList.add('is-invalid');
-        if (passwordInput.value === '') passwordInput.classList.add('is-invalid');
-    }
-}
-
-function logout() {
-    firebase.auth().signOut().then(function () {
-        // Sign-out successful.
-        location.reload();
-    }).catch(function (error) {
-        // An error happened.
-        swal("Failed!", error.code, "error");
-    });
-}
-
-function loadData(ui, data) {
-    ui.budget += parseInt(data.budget);
-    ui.currency = data.currency;
-    let expenses = data.itemList;
-
-    let options = ui.select_option.options;
-    for (let i = 0; i < options.length; i++) {
-        if (ui.currency === options[i].value) {
-            ui.select_option.selectedIndex = i;
-        }
-    }
-
-    ui.select_option.classList.remove('d-none');
-
-    ui.budgetAmount.innerText = ui.formatNumber(ui.budget);
-
-    if (expenses !== '') {
-        expenses = expenses.split('*');
-        let list = [];
-
-        for (let i = 0; i < expenses.length; i++) {
-            list.push(JSON.parse(expenses[i]));
-        }
-
-        ui.itemID = list.length + 1;
-
-        for (let i = 0; i < list.length; i++) {
-            ui.addExpense(list[i]);
-        }
-
-        ui.itemList.push(...list);
-    }
-
-    ui.showBalance();
-    ui.removeLoader();
 }
