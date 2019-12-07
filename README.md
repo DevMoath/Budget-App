@@ -20,3 +20,6 @@ Manage your finance tasks
 * Add expense
 * Update expense
 * Delete expense
+* Complete expense
+* Complete all expenses with one click
+* Delete all expenses with one click
