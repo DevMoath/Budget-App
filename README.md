@@ -1,11 +1,6 @@
 # Budget App
 Manage your finance tasks
 
-## Table of Content
-* [Technologies Used](#technologies-used)
-* [App Functions](#app-functions)
-* [License](#license)
-
 ## Technologies Used
 * HTML
 * CSS
@@ -24,6 +19,3 @@ Manage your finance tasks
 * Complete expense
 * Complete all expenses with one click
 * Delete all expenses with one click
-
-## License
-The Budget App is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
